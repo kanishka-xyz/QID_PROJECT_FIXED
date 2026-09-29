@@ -997,6 +997,75 @@ def get_dock_queue(
     )
 
 
+    # ========================================================
+    # NORMALIZE THE NEXT DOCK STATION
+    #
+    # The completion endpoint normally advances current_station.
+    # This fallback also repairs older/stale records where the
+    # previous Dock station is already PASSED but current_station
+    # was not advanced.
+    # ========================================================
+
+    if station == "DOCK_STATION_1":
+
+        inspection_collection.update_many(
+            {
+                "firewall.stations.FIREWALL.status": "PASSED",
+                "dock.stations.DOCK_STATION_1.status": {
+                    "$ne": "PASSED"
+                },
+                "current_station": {
+                    "$in": [
+                        "DOCK_STATION_1",
+                        "DOCK_PENDING",
+                        "FIREWALL",
+                    ]
+                },
+            },
+            {
+                "$set": {
+                    "overall_status": "DOCK_PENDING",
+                    "current_stage": "DOCK_STATION_1",
+                    "current_station": "DOCK_STATION_1",
+                    "updated_at": utc_now(),
+                }
+            },
+        )
+
+    else:
+
+        station_number = int(
+            station.rsplit("_", 1)[1]
+        )
+
+        previous_station = (
+            f"DOCK_STATION_{station_number - 1}"
+        )
+
+        inspection_collection.update_many(
+            {
+                "firewall.stations.FIREWALL.status": "PASSED",
+                f"dock.stations.{previous_station}.status": "PASSED",
+                f"dock.stations.{station}.status": {
+                    "$ne": "PASSED"
+                },
+                "current_station": {
+                    "$in": [
+                        previous_station,
+                        station,
+                    ]
+                },
+            },
+            {
+                "$set": {
+                    "overall_status": "DOCK_IN_PROGRESS",
+                    "current_stage": station,
+                    "current_station": station,
+                    "updated_at": utc_now(),
+                }
+            },
+        )
+
     records = list(
         inspection_collection.find(
             {

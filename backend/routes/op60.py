@@ -1893,10 +1893,13 @@ def save_rework(
 
 
             # ------------------------------------------------
-            # PDI STATION 3 is the only PDI station.
-            # After all PDI NOK checkpoints are corrected at OP60,
-            # return to PDI STATION 3 for a fresh re-inspection.
+            # PDI STATION 3 NOK -> OP60 REWORK -> PDI STATION 4
             # ------------------------------------------------
+            # All outstanding PDI-3 NOK items have been corrected at
+            # OP60. The original PDI/Gauge values remain unchanged for
+            # audit; the correction is recorded in the rework history.
+            # Workflow-wise PDI-3 is now cleared and the same frame moves
+            # directly to PDI STATION 4. It must NOT return to PDI-3.
 
             update_fields[
                 "pdi.status"
@@ -1904,19 +1907,19 @@ def save_rework(
 
             update_fields[
                 "pdi.current_station"
-            ] = "PDI_STATION_3"
+            ] = "PDI_STATION_4"
 
             update_fields[
                 "pdi.stations.PDI_STATION_3.status"
-            ] = "WAITING"
+            ] = "PASSED"
 
             update_fields[
                 "pdi.stations.PDI_STATION_3.result_status"
-            ] = None
+            ] = "OK"
 
             update_fields[
                 "pdi.stations.PDI_STATION_3.completed_at"
-            ] = None
+            ] = now
 
             update_fields[
                 "pdi.stations.PDI_STATION_3.nok_items"
@@ -1924,15 +1927,15 @@ def save_rework(
 
             update_fields[
                 "overall_status"
-            ] = "PDI_PENDING"
+            ] = "PDI_IN_PROGRESS"
 
             update_fields[
                 "current_stage"
-            ] = "PDI_STATION_3"
+            ] = "PDI_STATION_4"
 
             update_fields[
                 "current_station"
-            ] = "PDI_STATION_3"
+            ] = "PDI_STATION_4"
 
             update_fields[
                 "op60_return_station"

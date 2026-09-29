@@ -68,6 +68,7 @@ VALID_STAGES = [
     "STAGE_3",
     "OP60",
     "PDI_STATION_3",
+    "PDI_STATION_4",
     "FIREWALL",
       # DOCK
     "DOCK_STATION_1",

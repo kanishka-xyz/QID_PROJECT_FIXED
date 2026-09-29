@@ -600,13 +600,29 @@ def get_firewall_queue(
     # PDI STATION 3 MUST BE PASSED
     # =====================================================
 
+    # A frame is eligible for Firewall in either of these cases:
+    # 1. It has already been moved to FIREWALL by the PDI workflow.
+    # 2. BOTH PDI-3 and PDI-4 are PASSED. This covers both normal
+    #    PDI-OK frames and PDI-3 NOK frames that went through OP60
+    #    rework and then completed PDI-4.
+    #
+    # Do NOT use PDI-3 alone as eligibility: a PDI-3-passed frame must
+    # still complete PDI-4 before entering Firewall.
     records = list(
         inspection_collection.find(
             {
-                "pdi.stations.PDI_STATION_3.status":
-                    "PASSED",
-                "current_station":
-                    "FIREWALL",
+                "$or": [
+                    {
+                        "current_station":
+                            "FIREWALL",
+                    },
+                    {
+                        "pdi.stations.PDI_STATION_3.status":
+                            "PASSED",
+                        "pdi.stations.PDI_STATION_4.status":
+                            "PASSED",
+                    },
+                ]
             }
         ).sort(
             "created_at",
@@ -650,6 +666,47 @@ def get_firewall_queue(
             == "PASSED"
         ):
             continue
+
+        # Normalize fully completed PDI records into the Firewall stage.
+        # This also repairs older records whose PDI stations are both
+        # passed but whose top-level current_station was not updated.
+        pdi_stations = (
+            record.get("pdi", {})
+            .get("stations", {})
+            or {}
+        )
+
+        if (
+            pdi_stations.get("PDI_STATION_3", {}).get("status")
+            == "PASSED"
+            and
+            pdi_stations.get("PDI_STATION_4", {}).get("status")
+            == "PASSED"
+            and
+            record.get("current_station") != "FIREWALL"
+        ):
+            inspection_collection.update_one(
+                {"_id": record["_id"]},
+                {"$set": {
+                    "pdi.status": "COMPLETED",
+                    "pdi.current_station": "COMPLETED",
+                    "overall_status": "FIREWALL_PENDING",
+                    "current_stage": "FIREWALL",
+                    "current_station": "FIREWALL",
+                    "pdi_nok_items": [],
+                    "updated_at": utc_now(),
+                }}
+            )
+
+            record = inspection_collection.find_one(
+                {"_id": record["_id"]}
+            )
+            firewall = ensure_firewall_structure(record)
+            station_data = (
+                firewall.get("stations", {})
+                .get(FIREWALL_STATION, {})
+                or {}
+            )
 
         record[
             "firewall"

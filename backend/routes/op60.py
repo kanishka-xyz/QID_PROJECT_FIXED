@@ -1891,37 +1891,70 @@ def save_rework(
 
         # ====================================================
         # PDI REWORK COMPLETE
-        # -> RETURN TO PDI / FIREWALL
-        # ====================================================
+        # -> ROUTE BASED ON THE PDI STATION THAT FAILED
+        #
+        # PDI-3 NOK: OP60 -> PDI-4
+        # PDI-4 NOK: OP60 -> FIREWALL
 
-        if not remaining_items:
+        if station == "PDI_STATION_4":
 
-            pdi_obj = (
-                temp_record.get(
-                    "pdi",
-                    {}
-                )
-                or {}
-            )
+            # PDI-4 rework is the final PDI step. Once OP60 has
+            # corrected every PDI-4 NOK item, clear PDI-4 as passed
+            # and send the same frame directly to Firewall.
+            update_fields[
+                "pdi.status"
+            ] = "COMPLETED"
 
-            pdi_stations = (
-                pdi_obj.get(
-                    "stations",
-                    {}
-                )
-                or {}
-            )
+            update_fields[
+                "pdi.current_station"
+            ] = "COMPLETED"
 
+            update_fields[
+                "pdi.stations.PDI_STATION_4.status"
+            ] = "PASSED"
 
-            # ------------------------------------------------
+            update_fields[
+                "pdi.stations.PDI_STATION_4.result_status"
+            ] = "OK"
+
+            update_fields[
+                "pdi.stations.PDI_STATION_4.completed_at"
+            ] = now
+
+            update_fields[
+                "pdi.stations.PDI_STATION_4.nok_items"
+            ] = []
+
+            update_fields[
+                "overall_status"
+            ] = "FIREWALL_PENDING"
+
+            update_fields[
+                "current_stage"
+            ] = "FIREWALL"
+
+            update_fields[
+                "current_station"
+            ] = "FIREWALL"
+
+            update_fields[
+                "pdi_nok_items"
+            ] = []
+
+            update_fields[
+                "op60_return_station"
+            ] = None
+
+            update_fields[
+                "completed_at"
+            ] = None
+
+        else:
+
             # PDI STATION 3 NOK -> OP60 REWORK -> PDI STATION 4
-            # ------------------------------------------------
-            # All outstanding PDI-3 NOK items have been corrected at
-            # OP60. The original PDI/Gauge values remain unchanged for
-            # audit; the correction is recorded in the rework history.
-            # Workflow-wise PDI-3 is now cleared and the same frame moves
-            # directly to PDI STATION 4. It must NOT return to PDI-3.
-
+            #
+            # PDI-3 is cleared after all of its NOK items are corrected
+            # at OP60. PDI-4 remains a mandatory inspection step.
             update_fields[
                 "pdi.status"
             ] = "IN_PROGRESS"
@@ -1965,7 +1998,6 @@ def save_rework(
             update_fields[
                 "completed_at"
             ] = None
-
 
         # ====================================================
         # FRAME HISTORY

@@ -1212,6 +1212,9 @@ function AdminOperatorsPage({
               <option value="PDI_STATION_3">
                 PDI STATION 3
               </option>
+              <option value="PDI_STATION_4">
+                PDI STATION 4
+              </option>
 
               <option value="FIREWALL">
                 FIREWALL

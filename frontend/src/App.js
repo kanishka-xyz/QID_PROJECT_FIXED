@@ -114,6 +114,19 @@ if (path === "/admin/login") {
     );
   }
 
+  // =====================================================
+  // PDI STATION 4
+  // =====================================================
+
+  if (path === "/pdi/station-4") {
+    return (
+      <PDIPage
+        navigate={navigate}
+        station="PDI_STATION_4"
+      />
+    );
+  }
+
   if (path === "/admin/frame-history") {
     return <FrameHistoryPage navigate={navigate} />;
   }

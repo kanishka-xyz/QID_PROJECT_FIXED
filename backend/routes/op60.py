@@ -1507,13 +1507,34 @@ def save_rework(
 
         if current_key in reworked_keys:
 
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    "This PDI NOK checkpoint "
-                    "has already been corrected"
-                ),
-            )
+            # The OP60 screen can contain a stale PDI NOK row if the
+            # same correction was already saved (for example after a
+            # browser refresh or a repeated click). Do not create a
+            # duplicate rework entry. Return the current database state
+            # so the frontend can refresh its pending list.
+            remaining_pdi_items = get_pending_pdi_nok_items(record)
+            remaining_items = get_all_pending_items(record)
+
+            return {
+                "success": True,
+                "message": "PDI rework was already recorded; current state refreshed.",
+                "record_id": str(object_id),
+                "frame_no": record.get("frame_no"),
+                "source": "PDI",
+                "station": station,
+                "checkpoint_id": checkpoint_id,
+                "original_status": "NO",
+                "corrected_status": "YES",
+                "already_corrected": True,
+                "remaining_pdi_nok": remaining_pdi_items,
+                "remaining_pdi_nok_count": len(remaining_pdi_items),
+                "remaining_nok": remaining_items,
+                "remaining_nok_count": len(remaining_items),
+                "overall_status": record.get("overall_status"),
+                "current_stage": record.get("current_stage"),
+                "current_station": record.get("current_station"),
+                "record": serialize_record(record),
+            }
 
 
         # ====================================================

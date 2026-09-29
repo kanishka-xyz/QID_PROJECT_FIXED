@@ -266,6 +266,29 @@ function AdminOperatorsPage({
       }
 
       // -------------------------------------------------
+      // PDI STATION 4
+      // -------------------------------------------------
+
+      if (
+        value ===
+        "PDI_STATION_4"
+      ) {
+
+        setForm(
+          (previous) => ({
+            ...previous,
+            station:
+              "PDI_STATION_4",
+            stage:
+              "PDI_STATION_4",
+          })
+        );
+
+        return;
+      }
+
+
+      // -------------------------------------------------
       // FIREWALL
       // -------------------------------------------------
 
@@ -421,6 +444,9 @@ function AdminOperatorsPage({
 
         case "PDI_STATION_3":
           return "PDI STATION 3";
+
+        case "PDI_STATION_4":
+          return "PDI STATION 4";
 
 
         case "FIREWALL":

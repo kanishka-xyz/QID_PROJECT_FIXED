@@ -52,6 +52,7 @@ VALID_STATIONS = [
     "OP40",
     "OP60",
     "PDI_STATION_3",
+    "PDI_STATION_4",
     "FIREWALL",
      "DOCK_STATION_1",
     "DOCK_STATION_2",
@@ -162,6 +163,23 @@ def validate_operator_station_stage(
 
     # -----------------------------------------------------
     # PDI STATION 4
+    # -----------------------------------------------------
+
+    if station == "PDI_STATION_4":
+
+        if stage != "PDI_STATION_4":
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "PDI_STATION_4 operator must use "
+                    "PDI_STATION_4 stage."
+                ),
+            )
+
+        return True
+
+    # -----------------------------------------------------
+    # FIREWALL
     # -----------------------------------------------------
 
     if station == "FIREWALL":

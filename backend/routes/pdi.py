@@ -3164,9 +3164,19 @@ def pass_pdi_station(
     # remains locked while OP60 handles the rework.
     # =====================================================
 
+    # Collect NOKs from BOTH the normal PDI checklist and the
+    # mandatory Gauge checklist. Gauge NOKs must also be sent to
+    # OP60 for rework.
     nok_items = get_nok_checkpoints(
         station_data
     )
+
+    if station == "PDI_STATION_3":
+        nok_items.extend(
+            get_nok_gauge_checkpoints(
+                station_data
+            )
+        )
 
     now = utc_now()
 

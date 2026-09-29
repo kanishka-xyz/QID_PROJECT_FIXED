@@ -250,15 +250,26 @@ def get_record(
 # =========================================================
 
 def all_pdi_stations_completed(record):
-    """Firewall is available only after PDI STATION 3 passes."""
+    """Firewall is available only after BOTH PDI stations pass."""
 
     pdi = record.get("pdi", {}) or {}
-    station = (pdi.get("stations", {}) or {}).get(
+    stations = pdi.get("stations", {}) or {}
+
+    station_3 = stations.get(
         "PDI_STATION_3",
         {}
     ) or {}
 
-    return station.get("status") == "PASSED"
+    station_4 = stations.get(
+        "PDI_STATION_4",
+        {}
+    ) or {}
+
+    return (
+        station_3.get("status") == "PASSED"
+        and
+        station_4.get("status") == "PASSED"
+    )
 
 
 # =========================================================
@@ -820,8 +831,8 @@ def get_firewall_record(
         raise HTTPException(
             status_code=403,
             detail=(
-                "PDI STATION 3 must be passed "
-                "before Firewall."
+                "PDI STATION 3 and PDI STATION 4 must "
+                "be passed before Firewall."
             ),
         )
 
@@ -900,8 +911,8 @@ def start_firewall_station(
         raise HTTPException(
             status_code=403,
             detail=(
-                "PDI STATION 3 must be passed "
-                "before Firewall."
+                "PDI STATION 3 and PDI STATION 4 must "
+                "be passed before Firewall."
             ),
         )
 
@@ -1064,8 +1075,8 @@ def save_firewall_station(
         raise HTTPException(
             status_code=403,
             detail=(
-                "PDI STATION 3 must be passed "
-                "before Firewall."
+                "PDI STATION 3 and PDI STATION 4 must "
+                "be passed before Firewall."
             ),
         )
 
@@ -1288,8 +1299,8 @@ def pass_firewall_station(
         raise HTTPException(
             status_code=403,
             detail=(
-                "PDI STATION 3 must be passed "
-                "before Firewall."
+                "PDI STATION 3 and PDI STATION 4 must "
+                "be passed before Firewall."
             ),
         )
 

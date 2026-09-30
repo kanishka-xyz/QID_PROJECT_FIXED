@@ -1231,6 +1231,7 @@ const passStation =
 
   return (
     <div
+      className="qid-page qid-firewall"
       style={
         styles.page
       }

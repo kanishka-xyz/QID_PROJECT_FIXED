@@ -455,6 +455,19 @@ def get_dock_station(operator):
             f"DOCK-{number}"
         ] = canonical
 
+        # Accept DOC naming as an alias for the Dock workflow.
+        aliases[
+            f"DOC_STATION_{number}"
+        ] = canonical
+
+        aliases[
+            f"DOC STATION {number}"
+        ] = canonical
+
+        aliases[
+            f"DOC-{number}"
+        ] = canonical
+
 
     dock_station = aliases.get(
         station

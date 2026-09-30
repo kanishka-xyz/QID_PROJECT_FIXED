@@ -458,19 +458,6 @@ export default function DockPage({
 
     loadQueue();
 
-    // Keep the DOC/Dock queue live so a frame that completes
-    // Firewall appears without requiring a manual refresh.
-    const queueTimer = setInterval(
-      () => {
-        loadQueue();
-      },
-      5000
-    );
-
-    return () => {
-      clearInterval(queueTimer);
-    };
-
   }, []);
 
 

@@ -1143,13 +1143,20 @@ const passStation =
       );
 
       // =================================================
-      // GO TO DOC
+      // GO TO NEXT OPERATOR LOGIN
+      // =================================================
+      //
+      // Firewall and Dock are handled by different operators.
+      // Send the user to login so the DOCK_STATION_1 operator
+      // can authenticate before entering the Dock workflow.
+      // Do NOT navigate to /doc because that route does not
+      // exist in the application and would fall through to OP40.
       // =================================================
 
       setTimeout(
         () => {
           window.location.href =
-            "/doc";
+            "/login";
         },
         400
       );

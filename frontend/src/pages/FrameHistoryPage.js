@@ -1553,7 +1553,7 @@ function FrameHistoryPage({
 
     return (
 
-      <div className="page">
+      <div className="page qid-page qid-history">
 
         <div className="loading">
 

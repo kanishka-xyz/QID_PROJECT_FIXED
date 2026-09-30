@@ -42,7 +42,6 @@ STAGES = [
 
 PDI_REWORK_STATIONS = [
     "PDI_STATION_3",
-    "PDI_STATION_4",
 ]
 
 
@@ -1542,6 +1541,17 @@ def save_rework(
     # ========================================================
     # PDI REWORK
     # ========================================================
+    if stage == "PDI_STATION_4":
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "PDI-4 NOK points must be corrected at PDI Station 4. "
+                "PDI-4 does not use OP60 rework."
+            ),
+        )
+
+
 
     if stage in PDI_REWORK_STATIONS:
 
@@ -2095,19 +2105,9 @@ def save_rework(
 
 
         # ====================================================
-        # ALL OP60 WORK COMPLETE
+        # ALL PDI-3 OP60 WORK COMPLETE
         # ====================================================
-        #
-        # IMPORTANT:
-        #
-        # OP60 IS NOT THE END.
-        #
-        # Do NOT set:
-        #
-        #     overall_status = COMPLETED
-        #
-        # Instead send the SAME record to PDI STATION 3.
-        #
+        # Route the frame to the mandatory PDI STATION 4.
         # ====================================================
 
         else:
@@ -2130,114 +2130,60 @@ def save_rework(
 
 
         # ====================================================
-        # PDI REWORK COMPLETE
-        # -> ROUTE BASED ON THE PDI STATION THAT FAILED
+        # PDI-3 REWORK COMPLETE -> PDI-4
+        # ====================================================
         #
-        # PDI-3 NOK: OP60 -> PDI-4
-        # PDI-4 NOK: OP60 -> FIREWALL
+        # OP60 handles PDI-3 NOKs only. Once all PDI-3 NOKs are
+        # corrected, the frame must continue to mandatory PDI-4.
+        #
 
-        if station == "PDI_STATION_4":
+        update_fields[
+            "pdi.status"
+        ] = "IN_PROGRESS"
 
-            # PDI-4 rework is the final PDI step. Once OP60 has
-            # corrected every PDI-4 NOK item, clear PDI-4 as passed
-            # and send the same frame directly to Firewall.
-            update_fields[
-                "pdi.status"
-            ] = "COMPLETED"
+        update_fields[
+            "pdi.current_station"
+        ] = "PDI_STATION_4"
 
-            update_fields[
-                "pdi.current_station"
-            ] = "COMPLETED"
+        update_fields[
+            "pdi.stations.PDI_STATION_3.status"
+        ] = "PASSED"
 
-            update_fields[
-                "pdi.stations.PDI_STATION_4.status"
-            ] = "PASSED"
+        update_fields[
+            "pdi.stations.PDI_STATION_3.result_status"
+        ] = "OK"
 
-            update_fields[
-                "pdi.stations.PDI_STATION_4.result_status"
-            ] = "OK"
+        update_fields[
+            "pdi.stations.PDI_STATION_3.completed_at"
+        ] = now
 
-            update_fields[
-                "pdi.stations.PDI_STATION_4.completed_at"
-            ] = now
+        update_fields[
+            "pdi.stations.PDI_STATION_3.nok_items"
+        ] = []
 
-            update_fields[
-                "pdi.stations.PDI_STATION_4.nok_items"
-            ] = []
+        update_fields[
+            "overall_status"
+        ] = "PDI_IN_PROGRESS"
 
-            update_fields[
-                "overall_status"
-            ] = "FIREWALL_PENDING"
+        update_fields[
+            "current_stage"
+        ] = "PDI_STATION_4"
 
-            update_fields[
-                "current_stage"
-            ] = "FIREWALL"
+        update_fields[
+            "current_station"
+        ] = "PDI_STATION_4"
 
-            update_fields[
-                "current_station"
-            ] = "FIREWALL"
+        update_fields[
+            "op60_return_station"
+        ] = None
 
-            update_fields[
-                "pdi_nok_items"
-            ] = []
+        update_fields[
+            "pdi_nok_items"
+        ] = []
 
-            update_fields[
-                "op60_return_station"
-            ] = None
-
-            update_fields[
-                "completed_at"
-            ] = None
-
-        else:
-
-            # PDI STATION 3 NOK -> OP60 REWORK -> PDI STATION 4
-            #
-            # PDI-3 is cleared after all of its NOK items are corrected
-            # at OP60. PDI-4 remains a mandatory inspection step.
-            update_fields[
-                "pdi.status"
-            ] = "IN_PROGRESS"
-
-            update_fields[
-                "pdi.current_station"
-            ] = "PDI_STATION_4"
-
-            update_fields[
-                "pdi.stations.PDI_STATION_3.status"
-            ] = "PASSED"
-
-            update_fields[
-                "pdi.stations.PDI_STATION_3.result_status"
-            ] = "OK"
-
-            update_fields[
-                "pdi.stations.PDI_STATION_3.completed_at"
-            ] = now
-
-            update_fields[
-                "pdi.stations.PDI_STATION_3.nok_items"
-            ] = []
-
-            update_fields[
-                "overall_status"
-            ] = "PDI_IN_PROGRESS"
-
-            update_fields[
-                "current_stage"
-            ] = "PDI_STATION_4"
-
-            update_fields[
-                "current_station"
-            ] = "PDI_STATION_4"
-
-            update_fields[
-                "op60_return_station"
-            ] = None
-
-            update_fields[
-                "completed_at"
-            ] = None
+        update_fields[
+            "completed_at"
+        ] = None
 
         # ====================================================
         # FRAME HISTORY

@@ -99,6 +99,7 @@ function AdminLoginPage({
   return (
 
     <div
+      className="qid-page qid-admin-login"
       style={{
         minHeight: "100vh",
         display: "flex",

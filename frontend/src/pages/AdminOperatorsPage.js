@@ -930,6 +930,7 @@ function AdminOperatorsPage({
   return (
 
     <div
+      className="qid-page qid-admin-operators"
       style={{
         minHeight:
           "100vh",

@@ -675,7 +675,7 @@ function LoginPage({ navigate }) {
   // =====================================================
 
   return (
-    <div style={styles.page}>
+    <div className="qid-page qid-login" style={styles.page}>
 
       {/* =================================================
           LEFT PANEL

@@ -773,13 +773,89 @@ export default function DockPage({
       );
 
 
+      // Update only the changed checkpoint locally.
+      // Do not reload the whole frame after every click;
+      // this prevents the Dock/DOC inspection screen from
+      // flickering while the operator works through the checklist.
+      setFrame((previous) => {
+        if (!previous) {
+          return previous;
+        }
+
+        const previousRecord =
+          getFrameRecord(previous);
+
+        if (!previousRecord) {
+          return previous;
+        }
+
+        const previousDock =
+          previousRecord.dock || {};
+
+        const previousStations =
+          previousDock.stations || {};
+
+        const previousStation =
+          previousStations[operatorStation] || {};
+
+        const previousCheckpoints =
+          previousStation.checkpoints || {};
+
+        const existingCheckpoint =
+          previousCheckpoints[checkpointId] || {};
+
+        const updatedRecord = {
+          ...previousRecord,
+          dock: {
+            ...previousDock,
+            stations: {
+              ...previousStations,
+              [operatorStation]: {
+                ...previousStation,
+                checkpoints: {
+                  ...previousCheckpoints,
+                  [checkpointId]: {
+                    ...existingCheckpoint,
+                    value,
+                    status: value,
+                    remark:
+                      remarks[checkpointId] ||
+                      existingCheckpoint?.remark ||
+                      "",
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        // Preserve the wrapper shape returned by getDockFrame().
+        if (previous?.record) {
+          return {
+            ...previous,
+            record: updatedRecord,
+          };
+        }
+
+        if (previous?.frame) {
+          return {
+            ...previous,
+            frame: updatedRecord,
+          };
+        }
+
+        if (previous?.inspection) {
+          return {
+            ...previous,
+            inspection: updatedRecord,
+          };
+        }
+
+        return updatedRecord;
+      });
+
       setSuccess(
         "Checkpoint saved."
-      );
-
-
-      await selectFrame(
-        selectedFrameId
       );
 
     }

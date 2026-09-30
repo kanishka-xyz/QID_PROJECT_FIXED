@@ -42,6 +42,7 @@ STAGES = [
 
 PDI_REWORK_STATIONS = [
     "PDI_STATION_3",
+    "PDI_STATION_4",
 ]
 
 

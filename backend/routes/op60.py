@@ -2156,57 +2156,60 @@ def save_rework(
         # PDI-3 REWORK COMPLETE -> PDI-4
         # ====================================================
         #
-        # OP60 handles PDI-3 NOKs only. Once all PDI-3 NOKs are
-        # corrected, the frame must continue to mandatory PDI-4.
-        #
+        # IMPORTANT:
+        # This block MUST run only when remaining_pdi_items is empty.
+        # If even one PDI-3 NOK remains, the frame stays in OP60.
+        # ====================================================
 
-        update_fields[
-            "pdi.status"
-        ] = "IN_PROGRESS"
+        if not remaining_pdi_items:
 
-        update_fields[
-            "pdi.current_station"
-        ] = "PDI_STATION_4"
+            update_fields[
+                "pdi.status"
+            ] = "IN_PROGRESS"
 
-        update_fields[
-            "pdi.stations.PDI_STATION_3.status"
-        ] = "PASSED"
+            update_fields[
+                "pdi.current_station"
+            ] = "PDI_STATION_4"
 
-        update_fields[
-            "pdi.stations.PDI_STATION_3.result_status"
-        ] = "OK"
+            update_fields[
+                "pdi.stations.PDI_STATION_3.status"
+            ] = "PASSED"
 
-        update_fields[
-            "pdi.stations.PDI_STATION_3.completed_at"
-        ] = now
+            update_fields[
+                "pdi.stations.PDI_STATION_3.result_status"
+            ] = "OK"
 
-        update_fields[
-            "pdi.stations.PDI_STATION_3.nok_items"
-        ] = []
+            update_fields[
+                "pdi.stations.PDI_STATION_3.completed_at"
+            ] = now
 
-        update_fields[
-            "overall_status"
-        ] = "PDI_IN_PROGRESS"
+            update_fields[
+                "pdi.stations.PDI_STATION_3.nok_items"
+            ] = []
 
-        update_fields[
-            "current_stage"
-        ] = "PDI_STATION_4"
+            update_fields[
+                "overall_status"
+            ] = "PDI_IN_PROGRESS"
 
-        update_fields[
-            "current_station"
-        ] = "PDI_STATION_4"
+            update_fields[
+                "current_stage"
+            ] = "PDI_STATION_4"
 
-        update_fields[
-            "op60_return_station"
-        ] = None
+            update_fields[
+                "current_station"
+            ] = "PDI_STATION_4"
 
-        update_fields[
-            "pdi_nok_items"
-        ] = []
+            update_fields[
+                "op60_return_station"
+            ] = None
 
-        update_fields[
-            "completed_at"
-        ] = None
+            update_fields[
+                "pdi_nok_items"
+            ] = []
+
+            update_fields[
+                "completed_at"
+            ] = None
 
         # ====================================================
         # FRAME HISTORY

@@ -580,6 +580,39 @@ const loadRecord =
     stationData?.status ===
     "PASSED";
 
+  // The current Firewall API exposes PDI-3 and PDI-4 as the
+  // PDI readiness stations. Do not invent statuses for stations
+  // that are not returned by the API.
+  const pdiReadiness = useMemo(() => {
+    const pdiStations =
+      record?.pdi?.stations ||
+      {};
+
+    return [
+      {
+        key: "PDI_STATION_3",
+        label: "ST-3",
+        status:
+          pdiStations?.PDI_STATION_3?.status ||
+          "WAITING",
+      },
+      {
+        key: "PDI_STATION_4",
+        label: "ST-4",
+        status:
+          pdiStations?.PDI_STATION_4?.status ||
+          "WAITING",
+      },
+    ];
+  }, [record]);
+
+  const pdiReadyForFirewall =
+    pdiReadiness.length > 0 &&
+    pdiReadiness.every(
+      (item) =>
+        item.status === "PASSED"
+    );
+
   // =======================================================
   // VALID ROWS
   // =======================================================
@@ -1226,13 +1259,19 @@ const passStation =
           styles.header
         }
       >
-        <div>
-          <div
-            style={
-              styles.title
-            }
-          >
-            Firewall Inspection
+        <div style={styles.headerIdentity}>
+          <div style={styles.headerTitleRow}>
+            <div
+              style={
+                styles.title
+              }
+            >
+              Firewall Inspection
+            </div>
+
+            <span style={styles.headerStationBadge}>
+              FIREWALL
+            </span>
           </div>
 
           <div
@@ -1240,15 +1279,25 @@ const passStation =
               styles.subtitle
             }
           >
-            {
-              operator?.name ||
-              operator?.operator_id ||
-              "Operator"
-            }
+            Operator:{" "}
+            <strong>
+              {
+                operator?.name ||
+                operator?.operator_id ||
+                "Operator"
+              }
+            </strong>
 
-            {" • "}
+            <span style={styles.headerDivider}>•</span>
 
-            FIREWALL
+            Shift:{" "}
+            <strong>
+              {
+                operator?.shift ||
+                operator?.operator_shift ||
+                "-"
+              }
+            </strong>
           </div>
         </div>
 
@@ -1317,7 +1366,7 @@ const passStation =
                 styles.smallLabel
               }
             >
-              STATION
+              CURRENT STATION
             </div>
 
             <div
@@ -1325,22 +1374,131 @@ const passStation =
                 styles.stationName
               }
             >
-              FIREWALL
+              FIREWALL INSPECTION
+            </div>
+
+            <div style={styles.stationMeta}>
+              Final inspection after PDI readiness
             </div>
           </div>
 
-          <div
-            style={
-              styles.statusBadge(
-                stationData
-                  ?.status
+          <div style={styles.stationStatusBlock}>
+            <div style={styles.smallLabel}>
+              CURRENT STATUS
+            </div>
+
+            <div
+              style={
+                styles.statusBadge(
+                  stationData?.status
+                )
+              }
+            >
+              {
+                stationData?.status ||
+                "WAITING"
+              }
+            </div>
+          </div>
+        </section>
+
+        <section style={styles.overviewCard}>
+          <div style={styles.overviewHeader}>
+            <div>
+              <div style={styles.overviewEyebrow}>
+                STATION OVERVIEW
+              </div>
+              <h2 style={styles.overviewTitle}>
+                Firewall inspection zones
+              </h2>
+            </div>
+
+            <span style={styles.overviewHint}>
+              Statuses shown from available Firewall data
+            </span>
+          </div>
+
+          <div style={styles.zoneGrid}>
+            {["TOP-1", "TOP-2", "BOTTOM-1", "BOTTOM-2"].map(
+              (zone) => (
+                <div
+                  key={zone}
+                  style={styles.zoneCard}
+                >
+                  <div style={styles.zoneName}>
+                    {zone}
+                  </div>
+
+                  <span style={styles.statusBadge(
+                    stationData?.status
+                  )}>
+                    {stationData?.status || "WAITING"}
+                  </span>
+
+                  <div style={styles.zoneNote}>
+                    Firewall station status
+                  </div>
+                </div>
               )
-            }
-          >
-            {
-              stationData?.status ||
-              "WAITING"
-            }
+            )}
+          </div>
+        </section>
+
+        <section style={styles.readinessCard}>
+          <div style={styles.readinessHeader}>
+            <div>
+              <div style={styles.overviewEyebrow}>
+                PDI READINESS
+              </div>
+              <h2 style={styles.overviewTitle}>
+                {pdiReadyForFirewall
+                  ? "Ready for Firewall Inspection"
+                  : "PDI readiness in progress"}
+              </h2>
+            </div>
+
+            <span
+              style={styles.readinessBadge(
+                pdiReadyForFirewall
+              )}
+            >
+              {pdiReadyForFirewall
+                ? "READY"
+                : "WAITING"}
+            </span>
+          </div>
+
+          <div style={styles.readinessList}>
+            {pdiReadiness.map(
+              (item) => (
+                <div
+                  key={item.key}
+                  style={styles.readinessItem}
+                >
+                  <span
+                    style={styles.readinessIcon(
+                      item.status === "PASSED"
+                    )}
+                  >
+                    {item.status === "PASSED"
+                      ? "✓"
+                      : "•"}
+                  </span>
+
+                  <span style={styles.readinessLabel}>
+                    {item.label}
+                  </span>
+
+                  <span
+                    style={styles.readinessStatus(
+                      item.status
+                    )}
+                  >
+                    {item.status}
+                  </span>
+                </div>
+              )
+            )}
           </div>
         </section>
 
@@ -1381,8 +1539,7 @@ const passStation =
                     styles.queueSubtext
                   }
                 >
-                  PDI ST-3 + PDI ST-4
-                  completed
+                  Select a frame to begin or continue inspection
                 </div>
               </div>
 
@@ -1437,7 +1594,7 @@ const passStation =
                     styles.emptyTitle
                   }
                 >
-                  No frames available
+                  No frames are available
                 </div>
 
                 <div
@@ -1445,9 +1602,7 @@ const passStation =
                     styles.emptyText
                   }
                 >
-                  Frames appear here after
-                  PDI ST-3 and PDI ST-4
-                  are both passed.
+                  No frames are available for Firewall inspection.
                 </div>
               </div>
             ) : (
@@ -2455,708 +2610,724 @@ function Field({
 
 const styles = {
   page: {
-    minHeight:
-      "100vh",
-    background:
-      "#f4f6f8",
-    fontFamily:
-      "Arial, sans-serif",
-    color:
-      "#1f2937",
+    minHeight: "100vh",
+    background: "#eef2f6",
+    fontFamily: "Inter, Arial, sans-serif",
+    color: "#172033",
   },
 
   header: {
-    background:
-      "#111827",
-    color:
-      "white",
-    padding:
-      "18px 28px",
-    display:
-      "flex",
-    alignItems:
-      "center",
-    justifyContent:
-      "space-between",
-    gap:
-      "20px",
-    position:
-      "sticky",
-    top:
-      0,
-    zIndex:
-      20,
+    background: "#0f1f3d",
+    color: "#ffffff",
+    minHeight: "76px",
+    padding: "14px 28px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "24px",
+    borderBottom: "1px solid #22385f",
+    boxShadow: "0 3px 12px rgba(15,31,61,0.18)",
+    position: "sticky",
+    top: 0,
+    zIndex: 20,
+  },
+
+  headerIdentity: {
+    minWidth: 0,
+  },
+
+  headerTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap",
   },
 
   title: {
-    fontSize:
-      "24px",
-    fontWeight:
-      "700",
+    fontSize: "23px",
+    lineHeight: "1.2",
+    fontWeight: "800",
+    letterSpacing: "-0.2px",
+  },
+
+  headerStationBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "5px 9px",
+    borderRadius: "6px",
+    background: "#1d4ed8",
+    border: "1px solid #3b82f6",
+    color: "#ffffff",
+    fontSize: "11px",
+    fontWeight: "800",
+    letterSpacing: "0.5px",
   },
 
   subtitle: {
-    marginTop:
-      "5px",
-    fontSize:
-      "13px",
-    opacity:
-      0.8,
+    marginTop: "7px",
+    fontSize: "13px",
+    color: "#c9d5e8",
   },
 
-  main: {
-    maxWidth:
-      "1500px",
-    margin:
-      "0 auto",
-    padding:
-      "24px",
-  },
-
-  error: {
-    background:
-      "#fee2e2",
-    color:
-      "#991b1b",
-    border:
-      "1px solid #fecaca",
-    padding:
-      "12px 15px",
-    borderRadius:
-      "8px",
-    marginBottom:
-      "16px",
-    fontWeight:
-      "600",
-  },
-
-  success: {
-    background:
-      "#dcfce7",
-    color:
-      "#166534",
-    border:
-      "1px solid #bbf7d0",
-    padding:
-      "12px 15px",
-    borderRadius:
-      "8px",
-    marginBottom:
-      "16px",
-    fontWeight:
-      "600",
-  },
-
-  stationCard: {
-    background:
-      "white",
-    borderRadius:
-      "12px",
-    padding:
-      "18px",
-    marginBottom:
-      "20px",
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.06)",
-    display:
-      "flex",
-    justifyContent:
-      "space-between",
-    alignItems:
-      "center",
-  },
-
-  smallLabel: {
-    fontSize:
-      "12px",
-    color:
-      "#6b7280",
-    fontWeight:
-      "600",
-    marginBottom:
-      "5px",
-  },
-
-  stationName: {
-    fontSize:
-      "20px",
-    fontWeight:
-      "700",
-  },
-
-  statusBadge: (
-    status
-  ) => ({
-    padding:
-      "8px 13px",
-    borderRadius:
-      "999px",
-
-    background:
-      status ===
-      "PASSED"
-        ? "#dcfce7"
-        : status ===
-          "IN_PROGRESS"
-        ? "#fef3c7"
-        : "#f3f4f6",
-
-    color:
-      status ===
-      "PASSED"
-        ? "#166534"
-        : status ===
-          "IN_PROGRESS"
-        ? "#92400e"
-        : "#374151",
-
-    fontWeight:
-      "700",
-    fontSize:
-      "12px",
-  }),
-
-  grid: {
-    display:
-      "grid",
-    gridTemplateColumns:
-      "330px minmax(0, 1fr)",
-    gap:
-      "20px",
-    alignItems:
-      "start",
-  },
-
-  queueCard: {
-    background:
-      "white",
-    borderRadius:
-      "12px",
-    padding:
-      "18px",
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.06)",
-    position:
-      "sticky",
-    top:
-      "90px",
-    maxHeight:
-      "calc(100vh - 120px)",
-    overflowY:
-      "auto",
-  },
-
-  queueHeader: {
-    display:
-      "flex",
-    justifyContent:
-      "space-between",
-    alignItems:
-      "flex-start",
-    gap:
-      "10px",
-    marginBottom:
-      "14px",
-  },
-
-  sectionHeading: {
-    margin:
-      "0 0 16px",
-    fontSize:
-      "18px",
-    fontWeight:
-      "700",
-    color:
-      "#111827",
-  },
-
-  queueSubtext: {
-    fontSize:
-      "11px",
-    color:
-      "#6b7280",
-    marginTop:
-      "-8px",
-  },
-
-  refreshButton: {
-    border:
-      "1px solid #d1d5db",
-    background:
-      "white",
-    borderRadius:
-      "6px",
-    padding:
-      "6px 9px",
-    cursor:
-      "pointer",
-    fontSize:
-      "18px",
-  },
-
-  empty: {
-    padding:
-      "30px 12px",
-    textAlign:
-      "center",
-    color:
-      "#6b7280",
-    fontSize:
-      "14px",
-    lineHeight:
-      "1.5",
-  },
-
-  emptyIcon: {
-    fontSize:
-      "40px",
-    marginBottom:
-      "10px",
-  },
-
-  emptyTitle: {
-    fontWeight:
-      "700",
-    color:
-      "#374151",
-    marginBottom:
-      "6px",
-  },
-
-  emptyText: {
-    fontSize:
-      "12px",
-    color:
-      "#6b7280",
-  },
-
-  queueList: {
-    display:
-      "flex",
-    flexDirection:
-      "column",
-    gap:
-      "9px",
-  },
-
-  queueItem: (
-    selected
-  ) => ({
-    textAlign:
-      "left",
-
-    border:
-      selected
-        ? "2px solid #2563eb"
-        : "1px solid #e5e7eb",
-
-    background:
-      selected
-        ? "#eff6ff"
-        : "white",
-
-    borderRadius:
-      "9px",
-
-    padding:
-      "12px",
-
-    cursor:
-      "pointer",
-
-    width:
-      "100%",
-
-    boxSizing:
-      "border-box",
-  }),
-
-  queueItemTop: {
-    display:
-      "flex",
-    justifyContent:
-      "space-between",
-    alignItems:
-      "center",
-    gap:
-      "8px",
-  },
-
-  itemBadge: (
-    status
-  ) => ({
-    fontSize:
-      "11px",
-    fontWeight:
-      "700",
-    padding:
-      "4px 7px",
-    borderRadius:
-      "999px",
-
-    background:
-      status ===
-      "PASSED"
-        ? "#dcfce7"
-        : status ===
-          "IN_PROGRESS"
-        ? "#fef3c7"
-        : "#f3f4f6",
-
-    color:
-      status ===
-      "PASSED"
-        ? "#166534"
-        : status ===
-          "IN_PROGRESS"
-        ? "#92400e"
-        : "#374151",
-  }),
-
-  queueMeta: {
-    marginTop:
-      "7px",
-    fontSize:
-      "11px",
-    color:
-      "#6b7280",
-  },
-
-  queueDate: {
-    marginTop:
-      "5px",
-    fontSize:
-      "10px",
-    color:
-      "#9ca3af",
-  },
-
-  placeholder: {
-    background:
-      "white",
-    borderRadius:
-      "12px",
-    padding:
-      "70px 30px",
-    textAlign:
-      "center",
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.06)",
-    color:
-      "#6b7280",
-  },
-
-  placeholderIcon: {
-    fontSize:
-      "42px",
-    marginBottom:
-      "12px",
-  },
-
-  placeholderTitle: {
-    margin:
-      "0 0 8px",
-    color:
-      "#1f2937",
-  },
-
-  placeholderText: {
-    margin:
-      0,
-    lineHeight:
-      "1.5",
-  },
-
-  workArea: {
-    display:
-      "flex",
-    flexDirection:
-      "column",
-    gap:
-      "18px",
-  },
-
-  card: {
-    background:
-      "white",
-    borderRadius:
-      "12px",
-    padding:
-      "20px",
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.06)",
-  },
-
-  infoGrid: {
-    display:
-      "grid",
-    gridTemplateColumns:
-      "repeat(4, minmax(150px, 1fr))",
-    gap:
-      "14px",
-  },
-
-  infoValue: {
-    fontSize:
-      "14px",
-    fontWeight:
-      "700",
-    background:
-      "#f9fafb",
-    border:
-      "1px solid #e5e7eb",
-    borderRadius:
-      "7px",
-    padding:
-      "9px 10px",
-    minHeight:
-      "18px",
-  },
-
-  infoNote: {
-    marginTop:
-      "14px",
-    padding:
-      "10px 12px",
-    borderRadius:
-      "8px",
-    background:
-      "#eff6ff",
-    border:
-      "1px solid #bfdbfe",
-    color:
-      "#1d4ed8",
-    fontSize:
-      "12px",
-    fontWeight:
-      "600",
-    lineHeight:
-      "1.5",
-  },
-
-  formGrid: {
-    display:
-      "grid",
-    gridTemplateColumns:
-      "repeat(4, minmax(180px, 1fr))",
-    gap:
-      "14px",
-  },
-
-  formGrid3: {
-    display:
-      "grid",
-    gridTemplateColumns:
-      "repeat(3, minmax(180px, 1fr))",
-    gap:
-      "14px",
-  },
-
-  fieldLabel: {
-    display:
-      "flex",
-    flexDirection:
-      "column",
-    gap:
-      "6px",
-    fontSize:
-      "12px",
-    fontWeight:
-      "700",
-    color:
-      "#374151",
-  },
-
-  input: {
-    width:
-      "100%",
-    boxSizing:
-      "border-box",
-    border:
-      "1px solid #d1d5db",
-    borderRadius:
-      "6px",
-    padding:
-      "9px 10px",
-    fontSize:
-      "13px",
-    outline:
-      "none",
-    fontFamily:
-      "inherit",
-  },
-
-  sectionRow: {
-    display:
-      "flex",
-    justifyContent:
-      "space-between",
-    alignItems:
-      "center",
-    gap:
-      "12px",
-    marginBottom:
-      "15px",
-  },
-
-  tableWrap: {
-    overflowX:
-      "auto",
-  },
-
-  table: {
-    width:
-      "100%",
-    borderCollapse:
-      "collapse",
-    minWidth:
-      "900px",
-  },
-
-  th: {
-    background:
-      "#f3f4f6",
-    border:
-      "1px solid #d1d5db",
-    padding:
-      "10px",
-    textAlign:
-      "left",
-    fontSize:
-      "12px",
-    fontWeight:
-      "700",
-    whiteSpace:
-      "nowrap",
-  },
-
-  td: {
-    border:
-      "1px solid #e5e7eb",
-    padding:
-      "8px",
-    verticalAlign:
-      "top",
-  },
-
-  addButton: {
-    background:
-      "#2563eb",
-    color:
-      "white",
-    border:
-      "none",
-    borderRadius:
-      "7px",
-    padding:
-      "8px 12px",
-    cursor:
-      "pointer",
-    fontWeight:
-      "600",
-  },
-
-  deleteButton: {
-    background:
-      "#fee2e2",
-    color:
-      "#991b1b",
-    border:
-      "1px solid #fecaca",
-    borderRadius:
-      "6px",
-    padding:
-      "7px 9px",
-    cursor:
-      "pointer",
-    fontWeight:
-      "600",
-  },
-
-  actionCard: {
-    background:
-      "white",
-    borderRadius:
-      "12px",
-    padding:
-      "20px",
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.06)",
-    display:
-      "flex",
-    justifyContent:
-      "flex-end",
-    gap:
-      "12px",
-    alignItems:
-      "center",
-    flexWrap:
-      "wrap",
-  },
-
-  completedBox: {
-    padding:
-      "12px 18px",
-    borderRadius:
-      "8px",
-    background:
-      "#dcfce7",
-    color:
-      "#166534",
-    fontWeight:
-      "700",
-  },
-
-  secondaryButton: {
-    background:
-      "white",
-    color:
-      "#1f2937",
-    border:
-      "1px solid #cbd5e1",
-    borderRadius:
-      "8px",
-    padding:
-      "11px 18px",
-    cursor:
-      "pointer",
-    fontWeight:
-      "700",
-  },
-
-  primaryButton: {
-    background:
-      "#16a34a",
-    color:
-      "white",
-    border:
-      "none",
-    borderRadius:
-      "8px",
-    padding:
-      "11px 20px",
-    cursor:
-      "pointer",
-    fontWeight:
-      "700",
+  headerDivider: {
+    margin: "0 8px",
+    color: "#7186aa",
   },
 
   logoutButton: {
-    background:
-      "#dc2626",
+    background: "#ffffff",
+    color: "#172033",
+    border: "1px solid #cbd5e1",
+    borderRadius: "7px",
+    padding: "10px 16px",
+    cursor: "pointer",
+    fontWeight: "800",
+    fontSize: "13px",
+    minWidth: "82px",
+  },
+
+  main: {
+    width: "100%",
+    maxWidth: "1540px",
+    margin: "0 auto",
+    padding: "22px 24px 36px",
+    boxSizing: "border-box",
+  },
+
+  error: {
+    background: "#fff1f2",
+    color: "#991b1b",
+    border: "1px solid #fecdd3",
+    borderLeft: "4px solid #dc2626",
+    padding: "12px 15px",
+    borderRadius: "8px",
+    marginBottom: "14px",
+    fontWeight: "700",
+    fontSize: "13px",
+  },
+
+  success: {
+    background: "#f0fdf4",
+    color: "#166534",
+    border: "1px solid #bbf7d0",
+    borderLeft: "4px solid #16a34a",
+    padding: "12px 15px",
+    borderRadius: "8px",
+    marginBottom: "14px",
+    fontWeight: "700",
+    fontSize: "13px",
+  },
+
+  stationCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "18px 20px",
+    marginBottom: "14px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.06)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "18px",
+  },
+
+  smallLabel: {
+    fontSize: "10px",
+    color: "#64748b",
+    fontWeight: "800",
+    letterSpacing: "0.7px",
+    marginBottom: "5px",
+  },
+
+  stationName: {
+    fontSize: "20px",
+    lineHeight: "1.2",
+    fontWeight: "800",
+    color: "#12213c",
+  },
+
+  stationMeta: {
+    marginTop: "5px",
+    color: "#64748b",
+    fontSize: "12px",
+  },
+
+  stationStatusBlock: {
+    minWidth: "130px",
+    textAlign: "right",
+  },
+
+  statusBadge: (status) => {
+    const normalized = String(status || "WAITING").toUpperCase();
+
+    let background = "#f1f5f9";
+    let color = "#475569";
+    let border = "#cbd5e1";
+
+    if (
+      normalized === "PASSED" ||
+      normalized === "COMPLETED" ||
+      normalized === "OK"
+    ) {
+      background = "#ecfdf3";
+      color = "#166534";
+      border = "#bbf7d0";
+    } else if (
+      normalized === "NOK" ||
+      normalized === "ERROR"
+    ) {
+      background = "#fff1f2";
+      color = "#b91c1c";
+      border = "#fecdd3";
+    } else if (
+      normalized === "IN_PROGRESS" ||
+      normalized === "IN PROGRESS" ||
+      normalized === "PENDING"
+    ) {
+      background = "#fffbeb";
+      color = "#a16207";
+      border = "#fde68a";
+    }
+
+    return {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background,
+      color,
+      border: `1px solid ${border}`,
+      fontWeight: "800",
+      fontSize: "11px",
+      letterSpacing: "0.3px",
+      whiteSpace: "nowrap",
+    };
+  },
+
+  overviewCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "18px 20px",
+    marginBottom: "14px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.05)",
+  },
+
+  overviewHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "16px",
+    marginBottom: "14px",
+  },
+
+  overviewEyebrow: {
+    color: "#2563eb",
+    fontSize: "10px",
+    fontWeight: "800",
+    letterSpacing: "0.8px",
+    marginBottom: "4px",
+  },
+
+  overviewTitle: {
+    margin: 0,
+    color: "#172033",
+    fontSize: "17px",
+    fontWeight: "800",
+  },
+
+  overviewHint: {
+    color: "#64748b",
+    fontSize: "11px",
+    textAlign: "right",
+    maxWidth: "260px",
+  },
+
+  zoneGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(150px, 1fr))",
+    gap: "10px",
+  },
+
+  zoneCard: {
+    border: "1px solid #dbe3ee",
+    borderRadius: "9px",
+    padding: "13px",
+    background: "#f8fafc",
+    minHeight: "74px",
+    boxSizing: "border-box",
+  },
+
+  zoneName: {
+    color: "#172033",
+    fontSize: "14px",
+    fontWeight: "800",
+    marginBottom: "9px",
+  },
+
+  zoneNote: {
+    color: "#94a3b8",
+    fontSize: "10px",
+    marginTop: "7px",
+  },
+
+  readinessCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "18px 20px",
+    marginBottom: "18px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.05)",
+  },
+
+  readinessHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "16px",
+    marginBottom: "14px",
+  },
+
+  readinessBadge: (ready) => ({
+    display: "inline-flex",
+    padding: "6px 10px",
+    borderRadius: "999px",
+    background: ready ? "#ecfdf3" : "#fffbeb",
+    color: ready ? "#166534" : "#a16207",
+    border: `1px solid ${ready ? "#bbf7d0" : "#fde68a"}`,
+    fontWeight: "800",
+    fontSize: "11px",
+  }),
+
+  readinessList: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "8px",
+  },
+
+  readinessItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "10px 12px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "8px",
+    background: "#f8fafc",
+  },
+
+  readinessIcon: (passed) => ({
+    width: "22px",
+    height: "22px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    background: passed ? "#dcfce7" : "#e2e8f0",
+    color: passed ? "#166534" : "#64748b",
+    fontWeight: "900",
+    flex: "0 0 auto",
+  }),
+
+  readinessLabel: {
+    fontSize: "13px",
+    fontWeight: "800",
+    color: "#334155",
+    flex: 1,
+  },
+
+  readinessStatus: (status) => ({
+    fontSize: "10px",
+    fontWeight: "800",
     color:
-      "white",
-    border:
-      "none",
-    borderRadius:
-      "7px",
-    padding:
-      "8px 13px",
-    cursor:
-      "pointer",
-    fontWeight:
-      "600",
+      status === "PASSED"
+        ? "#166534"
+        : "#a16207",
+  }),
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "320px minmax(0, 1fr)",
+    gap: "18px",
+    alignItems: "start",
+  },
+
+  queueCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "16px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.06)",
+    position: "sticky",
+    top: "94px",
+    maxHeight: "calc(100vh - 118px)",
+    overflowY: "auto",
+  },
+
+  queueHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "10px",
+    marginBottom: "14px",
+  },
+
+  sectionHeading: {
+    margin: "0 0 13px",
+    fontSize: "17px",
+    fontWeight: "800",
+    color: "#172033",
+  },
+
+  queueSubtext: {
+    fontSize: "11px",
+    color: "#64748b",
+    lineHeight: "1.4",
+  },
+
+  refreshButton: {
+    border: "1px solid #cbd5e1",
+    background: "#ffffff",
+    color: "#1d4ed8",
+    borderRadius: "7px",
+    padding: "7px 10px",
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "800",
+  },
+
+  empty: {
+    padding: "26px 10px",
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: "13px",
+    lineHeight: "1.5",
+  },
+
+  emptyIcon: {
+    width: "44px",
+    height: "44px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 10px",
+    borderRadius: "50%",
+    background: "#eff6ff",
+    color: "#2563eb",
+    fontSize: "20px",
+  },
+
+  emptyTitle: {
+    fontWeight: "800",
+    color: "#334155",
+    marginBottom: "5px",
+  },
+
+  emptyText: {
+    fontSize: "12px",
+    color: "#64748b",
+  },
+
+  queueList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+
+  queueItem: (selected) => ({
+    textAlign: "left",
+    border: selected
+      ? "2px solid #2563eb"
+      : "1px solid #dbe3ee",
+    background: selected ? "#eff6ff" : "#ffffff",
+    borderRadius: "9px",
+    padding: "13px",
+    cursor: "pointer",
+    width: "100%",
+    boxSizing: "border-box",
+    boxShadow: selected
+      ? "0 2px 7px rgba(37,99,235,0.10)"
+      : "none",
+  }),
+
+  queueItemTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "8px",
+  },
+
+  itemBadge: (status) => {
+    const normalized = String(status || "WAITING").toUpperCase();
+
+    return {
+      display: "inline-flex",
+      padding: "4px 7px",
+      borderRadius: "999px",
+      background:
+        normalized === "PASSED"
+          ? "#ecfdf3"
+          : normalized === "NOK"
+          ? "#fff1f2"
+          : normalized === "IN_PROGRESS"
+          ? "#fffbeb"
+          : "#f1f5f9",
+      color:
+        normalized === "PASSED"
+          ? "#166534"
+          : normalized === "NOK"
+          ? "#b91c1c"
+          : normalized === "IN_PROGRESS"
+          ? "#a16207"
+          : "#475569",
+      border:
+        normalized === "PASSED"
+          ? "1px solid #bbf7d0"
+          : normalized === "NOK"
+          ? "1px solid #fecdd3"
+          : normalized === "IN_PROGRESS"
+          ? "1px solid #fde68a"
+          : "1px solid #cbd5e1",
+      fontSize: "10px",
+      fontWeight: "800",
+      whiteSpace: "nowrap",
+    };
+  },
+
+  queueMeta: {
+    marginTop: "8px",
+    fontSize: "11px",
+    color: "#64748b",
+  },
+
+  queueDate: {
+    marginTop: "6px",
+    fontSize: "10px",
+    color: "#94a3b8",
+  },
+
+  placeholder: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "52px 24px",
+    textAlign: "center",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.05)",
+    color: "#64748b",
+  },
+
+  placeholderIcon: {
+    width: "48px",
+    height: "48px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 12px",
+    borderRadius: "50%",
+    background: "#eff6ff",
+    color: "#2563eb",
+    fontSize: "21px",
+  },
+
+  placeholderTitle: {
+    margin: "0 0 7px",
+    color: "#172033",
+    fontSize: "18px",
+  },
+
+  placeholderText: {
+    margin: 0,
+    lineHeight: "1.5",
+    fontSize: "13px",
+  },
+
+  workArea: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+
+  card: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "20px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.05)",
+  },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(150px, 1fr))",
+    gap: "10px",
+  },
+
+  infoValue: {
+    fontSize: "13px",
+    fontWeight: "800",
+    color: "#172033",
+    background: "#f8fafc",
+    border: "1px solid #e2e8f0",
+    borderRadius: "7px",
+    padding: "10px 11px",
+    minHeight: "18px",
+  },
+
+  infoNote: {
+    marginTop: "13px",
+    padding: "10px 12px",
+    borderRadius: "8px",
+    background: "#eff6ff",
+    border: "1px solid #bfdbfe",
+    color: "#1d4ed8",
+    fontSize: "12px",
+    fontWeight: "700",
+    lineHeight: "1.5",
+  },
+
+  formGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
+    gap: "13px",
+  },
+
+  formGrid3: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(180px, 1fr))",
+    gap: "13px",
+  },
+
+  fieldLabel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    fontSize: "11px",
+    fontWeight: "800",
+    color: "#334155",
+  },
+
+  input: {
+    width: "100%",
+    boxSizing: "border-box",
+    border: "1px solid #cbd5e1",
+    borderRadius: "7px",
+    padding: "10px 11px",
+    fontSize: "13px",
+    outline: "none",
+    fontFamily: "inherit",
+    color: "#172033",
+    background: "#ffffff",
+  },
+
+  sectionRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "14px",
+  },
+
+  tableWrap: {
+    overflowX: "auto",
+    border: "1px solid #dbe3ee",
+    borderRadius: "8px",
+  },
+
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    minWidth: "900px",
+  },
+
+  th: {
+    background: "#f1f5f9",
+    border: "1px solid #dbe3ee",
+    padding: "11px 10px",
+    textAlign: "left",
+    fontSize: "11px",
+    fontWeight: "800",
+    color: "#334155",
+    whiteSpace: "nowrap",
+  },
+
+  td: {
+    border: "1px solid #e2e8f0",
+    padding: "9px",
+    verticalAlign: "top",
+    background: "#ffffff",
+  },
+
+  addButton: {
+    background: "#2563eb",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "7px",
+    padding: "9px 13px",
+    cursor: "pointer",
+    fontWeight: "800",
+    fontSize: "12px",
+  },
+
+  deleteButton: {
+    background: "#fff1f2",
+    color: "#b91c1c",
+    border: "1px solid #fecdd3",
+    borderRadius: "6px",
+    padding: "8px 10px",
+    cursor: "pointer",
+    fontWeight: "800",
+    fontSize: "11px",
+  },
+
+  actionCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e1ec",
+    borderRadius: "12px",
+    padding: "16px 20px",
+    boxShadow: "0 2px 7px rgba(15,31,61,0.05)",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+
+  completedBox: {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "13px 16px",
+    borderRadius: "8px",
+    background: "#ecfdf3",
+    color: "#166534",
+    border: "1px solid #bbf7d0",
+    fontWeight: "800",
+    textAlign: "center",
+  },
+
+  secondaryButton: {
+    background: "#ffffff",
+    color: "#334155",
+    border: "1px solid #cbd5e1",
+    borderRadius: "8px",
+    padding: "11px 20px",
+    cursor: "pointer",
+    fontWeight: "800",
+    fontSize: "13px",
+    minWidth: "100px",
+  },
+
+  primaryButton: {
+    background: "#16a34a",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "8px",
+    padding: "12px 22px",
+    cursor: "pointer",
+    fontWeight: "800",
+    fontSize: "13px",
+    minWidth: "150px",
+    boxShadow: "0 2px 5px rgba(22,163,74,0.20)",
   },
 };
+
 
 export default FirewallPage;

@@ -363,6 +363,7 @@ function AdminDashboardPage({
   return (
 
     <div
+      className="qid-page qid-admin-dashboard"
       style={{
         minHeight: "100vh",
         background: "#f1f5f9",

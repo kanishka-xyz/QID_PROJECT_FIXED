@@ -230,6 +230,13 @@ function normalizeStation(
 
   }
 
+  // DOC is the UI naming used for the same Dock workflow.
+  const docMatch =
+    station.match(/^DOC(?:_STATION_|_STATION| STATION |-)??([1-5])$/);
+
+  if (docMatch) {
+    return `DOCK_STATION_${docMatch[1]}`;
+  }
 
   return "";
 }
@@ -450,6 +457,19 @@ export default function DockPage({
 
 
     loadQueue();
+
+    // Keep the DOC/Dock queue live so a frame that completes
+    // Firewall appears without requiring a manual refresh.
+    const queueTimer = setInterval(
+      () => {
+        loadQueue();
+      },
+      5000
+    );
+
+    return () => {
+      clearInterval(queueTimer);
+    };
 
   }, []);
 

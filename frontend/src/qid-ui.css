@@ -1,0 +1,24 @@
+/* QID Digital Inspection System - global industrial UI layer */
+:root{--qid-navy:#10213f;--qid-blue:#2563eb;--qid-bg:#eef2f6;--qid-border:#d8e0eb;--qid-text:#172033;--qid-muted:#64748b;--qid-green:#15803d;--qid-red:#b91c1c;--qid-amber:#a16207}
+*{box-sizing:border-box}
+html,body,#root{min-height:100%}
+body{margin:0;background:var(--qid-bg);color:var(--qid-text);font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{transition:background-color 120ms ease,border-color 120ms ease,box-shadow 120ms ease,transform 120ms ease;-webkit-tap-highlight-color:transparent}
+button:not(:disabled):active{transform:translateY(1px)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(37,99,235,.2);outline-offset:1px}
+input,select,textarea{min-height:40px}
+textarea{min-height:76px}
+table{color:var(--qid-text);border-color:var(--qid-border)!important}
+th{color:#334155!important;font-weight:800!important;background:#f1f5f9!important}
+td{color:#334155;border-color:#e2e8f0!important}
+table tbody tr:hover td{background:#f8fafc!important}
+.status-pass{background:#ecfdf3!important;color:var(--qid-green)!important;border-color:#bbf7d0!important}
+.status-nok{background:#fff1f2!important;color:var(--qid-red)!important;border-color:#fecdd3!important}
+.status-progress{background:#fffbeb!important;color:var(--qid-amber)!important;border-color:#fde68a!important}
+.status-waiting{background:#f1f5f9!important;color:#475569!important;border-color:#cbd5e1!important}
+[class*="dock-page"]{background:var(--qid-bg)!important;color:var(--qid-text)}
+[class*="dock-page"] input,[class*="dock-page"] select,[class*="dock-page"] textarea{border-color:var(--qid-border)!important;border-radius:7px!important;background:#fff!important}
+@media(max-width:1100px){input,select,textarea,button{font-size:14px}}
+@media(max-width:760px){input,select,textarea,button{min-height:42px}table{min-width:720px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

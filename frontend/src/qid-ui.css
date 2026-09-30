@@ -22,3 +22,224 @@ table tbody tr:hover td{background:#f8fafc!important}
 @media(max-width:1100px){input,select,textarea,button{font-size:14px}}
 @media(max-width:760px){input,select,textarea,button{min-height:42px}table{min-width:720px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* =========================================================
+   QID PROFESSIONAL UI REFRESH
+   Visual-only presentation layer. Existing component logic,
+   routes, APIs and workflows remain untouched.
+   ========================================================= */
+
+.qid-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(37,99,235,.055), transparent 28%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef2f6 100%);
+  color: #172033;
+}
+
+.qid-page h1,
+.qid-page h2,
+.qid-page h3,
+.qid-page h4 {
+  letter-spacing: -0.025em;
+}
+
+.qid-page button {
+  border-radius: 8px;
+  font-weight: 750;
+}
+
+.qid-page input,
+.qid-page select,
+.qid-page textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  box-shadow: 0 1px 2px rgba(15,31,61,.025);
+}
+
+.qid-page input:hover,
+.qid-page select:hover,
+.qid-page textarea:hover {
+  border-color: #94a3b8;
+}
+
+.qid-page input:focus,
+.qid-page select:focus,
+.qid-page textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+.qid-page table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.qid-page table thead th {
+  background: #eaf0f7 !important;
+  color: #26364f !important;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+  font-size: 11px !important;
+}
+
+.qid-page table tbody tr {
+  transition: background-color .12s ease;
+}
+
+.qid-page .card,
+.qid-page .panel,
+.qid-page .section,
+.qid-page .queue,
+.qid-page .inspection-card,
+.qid-page .frame-selector,
+.qid-page .filterBar {
+  border-color: #d8e0eb !important;
+  box-shadow: 0 4px 14px rgba(15,31,61,.055) !important;
+}
+
+/* Login */
+.qid-login {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(59,130,246,.22), transparent 32%),
+    linear-gradient(135deg, #0c1b35 0%, #142b50 48%, #f5f8fc 48%, #f5f8fc 100%);
+}
+
+.qid-login .loginCard,
+.qid-login .login-card {
+  box-shadow: 0 18px 50px rgba(15,31,61,.15);
+}
+
+/* Admin */
+.qid-admin-dashboard,
+.qid-admin-operators {
+  background: #eef2f6;
+}
+
+.qid-admin-dashboard header,
+.qid-admin-operators header {
+  box-shadow: 0 3px 14px rgba(15,31,61,.16);
+}
+
+.qid-admin-dashboard .navButton,
+.qid-admin-operators .navButton {
+  border-radius: 8px;
+}
+
+/* Operator inspection */
+.qid-inspection .topBar,
+.qid-pdi header,
+.qid-op60 header,
+.qid-firewall header,
+.qid-dock .dock-header {
+  box-shadow: 0 4px 16px rgba(15,31,61,.14);
+}
+
+.qid-pdi,
+.qid-op60,
+.qid-firewall,
+.qid-dock {
+  background: #eef2f6;
+}
+
+/* PDI checklist rows */
+.qid-pdi button {
+  min-height: 42px;
+}
+
+.qid-pdi [style*="border"] {
+  border-color: #d8e0eb;
+}
+
+/* OP60 rework */
+.qid-op60 .error,
+.qid-op60 .success {
+  border-radius: 9px;
+  box-shadow: 0 2px 7px rgba(15,31,61,.04);
+}
+
+/* Firewall */
+.qid-firewall .card,
+.qid-firewall [style*="borderRadius"] {
+  box-shadow: 0 3px 12px rgba(15,31,61,.045);
+}
+
+.qid-firewall button {
+  min-height: 42px;
+}
+
+/* Dock */
+.qid-dock .dock-header {
+  background: #10213f !important;
+}
+
+.qid-dock .queue,
+.qid-dock .dock-content,
+.qid-dock .inspection,
+.qid-dock .card {
+  box-shadow: 0 4px 14px rgba(15,31,61,.055);
+}
+
+.qid-dock .dock-logout {
+  background: #ffffff !important;
+  color: #172033 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.qid-dock .dock-logout:hover {
+  background: #f8fafc !important;
+}
+
+/* Records / history */
+.qid-records,
+.qid-history {
+  background: #eef2f6;
+}
+
+.qid-records .filterBar,
+.qid-history .frame-selector {
+  background: #fff;
+  border: 1px solid #d8e0eb;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(15,31,61,.05);
+}
+
+.qid-records button,
+.qid-history button {
+  min-height: 40px;
+}
+
+/* Status chips */
+.qid-page [class*="status"] {
+  line-height: 1.2;
+}
+
+/* Production-floor responsive behavior */
+@media (max-width: 900px) {
+  .qid-page {
+    overflow-x: hidden;
+  }
+
+  .qid-page header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .qid-page {
+    font-size: 14px;
+  }
+
+  .qid-page header {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .qid-page main,
+  .qid-page .container {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}

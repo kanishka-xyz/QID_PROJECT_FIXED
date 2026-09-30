@@ -1633,7 +1633,7 @@ async function handleComplete() {
 
   return (
 
-    <div className="dock-page">
+    <div className="dock-page qid-page qid-dock">
 
       {/* HEADER */}
 

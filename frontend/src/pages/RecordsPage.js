@@ -2189,6 +2189,7 @@ export default function Records({
   return (
 
     <div
+      className="qid-page qid-records"
       style={
         styles.container
       }

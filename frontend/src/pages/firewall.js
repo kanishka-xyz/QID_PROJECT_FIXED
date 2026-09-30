@@ -1175,24 +1175,11 @@ const passStation =
           )
       );
 
-      // =================================================
-      // GO TO NEXT OPERATOR LOGIN
-      // =================================================
-      //
-      // Firewall and Dock are handled by different operators.
-      // Send the user to login so the DOCK_STATION_1 operator
-      // can authenticate before entering the Dock workflow.
-      // Do NOT navigate to /doc because that route does not
-      // exist in the application and would fall through to OP40.
-      // =================================================
-
-      setTimeout(
-        () => {
-          window.location.href =
-            "/login";
-        },
-        400
-      );
+      // Stay on the Firewall screen after PASS.
+      // The frame is kept visible as PASSED / VIEW ONLY.
+      // The next operator can enter through the normal login flow.
+      setSelectedRecordId("");
+      setLoadingRecord(false);
 
     } catch (err) {
 
@@ -1399,48 +1386,6 @@ const passStation =
                 "WAITING"
               }
             </div>
-          </div>
-        </section>
-
-        <section style={styles.overviewCard}>
-          <div style={styles.overviewHeader}>
-            <div>
-              <div style={styles.overviewEyebrow}>
-                STATION OVERVIEW
-              </div>
-              <h2 style={styles.overviewTitle}>
-                Firewall inspection zones
-              </h2>
-            </div>
-
-            <span style={styles.overviewHint}>
-              Statuses shown from available Firewall data
-            </span>
-          </div>
-
-          <div style={styles.zoneGrid}>
-            {["TOP-1", "TOP-2", "BOTTOM-1", "BOTTOM-2"].map(
-              (zone) => (
-                <div
-                  key={zone}
-                  style={styles.zoneCard}
-                >
-                  <div style={styles.zoneName}>
-                    {zone}
-                  </div>
-
-                  <span style={styles.statusBadge(
-                    stationData?.status
-                  )}>
-                    {stationData?.status || "WAITING"}
-                  </span>
-
-                  <div style={styles.zoneNote}>
-                    Firewall station status
-                  </div>
-                </div>
-              )
-            )}
           </div>
         </section>
 

@@ -1614,11 +1614,6 @@ def get_pdi_queue(
                             },
 
                             {
-                                "pdi.current_station":
-                                    station
-                            },
-
-                            {
                                 f"pdi.stations.{station}.status": {
                                     "$in": [
                                         "WAITING",

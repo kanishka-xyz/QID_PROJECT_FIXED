@@ -442,6 +442,33 @@ export default function DockPage({
 
 
   // ==========================================================
+  // LOGOUT
+  // ==========================================================
+
+  function handleLogout() {
+    [
+      "operator_token",
+      "operator_id",
+      "operator_name",
+      "operator_station",
+      "operator_stage",
+      "operator_shift",
+      "operator_info",
+      "op40_operator",
+      "op60_operator",
+    ].forEach((key) =>
+      localStorage.removeItem(key)
+    );
+
+    if (navigate) {
+      navigate("/login");
+    } else {
+      window.location.href = "/login";
+    }
+  }
+
+
+  // ==========================================================
   // INITIALIZE
   // ==========================================================
 
@@ -1554,26 +1581,34 @@ async function handleComplete() {
 
         <div className="operator-box">
 
-          <span>
-            Operator
-          </span>
+          <div className="operator-details">
+            <span>
+              Operator
+            </span>
 
+            <strong>
+              {
+                localStorage.getItem(
+                  "operator_name"
+                ) ||
+                "Operator"
+              }
+            </strong>
 
-          <strong>
-            {
-              localStorage.getItem(
-                "operator_name"
-              ) ||
-              "Operator"
-            }
-          </strong>
+            <small>
+              {
+                operatorStation
+              }
+            </small>
+          </div>
 
-
-          <small>
-            {
-              operatorStation
-            }
-          </small>
+          <button
+            type="button"
+            className="dock-logout"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
 
         </div>
 
@@ -1980,6 +2015,31 @@ async function handleComplete() {
         .operator-box strong {
           display: block;
           margin: 3px 0;
+        }
+
+        .operator-box {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+        }
+
+        .operator-details {
+          text-align: right;
+        }
+
+        .dock-logout {
+          border: none;
+          background: #dc2626;
+          color: white;
+          padding: 10px 16px;
+          border-radius: 7px;
+          cursor: pointer;
+          font-weight: 700;
+          min-width: 82px;
+        }
+
+        .dock-logout:hover {
+          background: #b91c1c;
         }
 
 

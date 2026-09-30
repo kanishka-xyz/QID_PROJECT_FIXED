@@ -1176,9 +1176,7 @@ const passStation =
       );
 
       // Stay on the Firewall screen after PASS.
-      // The frame is kept visible as PASSED / VIEW ONLY.
-      // The next operator can enter through the normal login flow.
-      setSelectedRecordId("");
+      // Keep the selected frame visible as PASSED / VIEW ONLY.
       setLoadingRecord(false);
 
     } catch (err) {

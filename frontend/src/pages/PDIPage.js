@@ -1028,9 +1028,47 @@ useEffect(() => {
           const previousPdi = previous.pdi || {};
           const previousStations = previousPdi.stations || {};
           const previousStation = previousStations[stationKey] || {};
-          const previousCheckpoints = Array.isArray(previousStation.checkpoints)
-            ? previousStation.checkpoints
-            : [];
+          const previousCheckpoints =
+            previousStation.checkpoints;
+
+          let updatedCheckpoints;
+
+          if (Array.isArray(previousCheckpoints)) {
+            updatedCheckpoints =
+              previousCheckpoints.map((checkpoint) =>
+                String(
+                  checkpoint?.checkpoint_id ||
+                    checkpoint?.id
+                ) === String(checkpointId)
+                  ? {
+                      ...checkpoint,
+                      value,
+                    }
+                  : checkpoint
+              );
+          } else if (
+            previousCheckpoints &&
+            typeof previousCheckpoints === "object"
+          ) {
+            updatedCheckpoints = {
+              ...previousCheckpoints,
+            };
+
+            const existing =
+              updatedCheckpoints[checkpointId] ||
+              {};
+
+            updatedCheckpoints[checkpointId] = {
+              ...existing,
+              checkpoint_id:
+                existing?.checkpoint_id ||
+                existing?.id ||
+                checkpointId,
+              value,
+            };
+          } else {
+            updatedCheckpoints = previousCheckpoints;
+          }
 
           return {
             ...previous,
@@ -1040,11 +1078,8 @@ useEffect(() => {
                 ...previousStations,
                 [stationKey]: {
                   ...previousStation,
-                  checkpoints: previousCheckpoints.map((checkpoint) =>
-                    String(checkpoint?.checkpoint_id || checkpoint?.id) === String(checkpointId)
-                      ? { ...checkpoint, value }
-                      : checkpoint
-                  ),
+                  checkpoints:
+                    updatedCheckpoints,
                 },
               },
             },
@@ -1135,9 +1170,47 @@ useEffect(() => {
           const previousPdi = previous.pdi || {};
           const previousStations = previousPdi.stations || {};
           const previousStation = previousStations[stationKey] || {};
-          const previousGauge = Array.isArray(previousStation.gauge_checkpoints)
-            ? previousStation.gauge_checkpoints
-            : [];
+          const previousGauge =
+            previousStation.gauge_checkpoints;
+
+          let updatedGauge;
+
+          if (Array.isArray(previousGauge)) {
+            updatedGauge =
+              previousGauge.map((checkpoint) =>
+                String(
+                  checkpoint?.checkpoint_id ||
+                    checkpoint?.id
+                ) === String(checkpointId)
+                  ? {
+                      ...checkpoint,
+                      value,
+                    }
+                  : checkpoint
+              );
+          } else if (
+            previousGauge &&
+            typeof previousGauge === "object"
+          ) {
+            updatedGauge = {
+              ...previousGauge,
+            };
+
+            const existing =
+              updatedGauge[checkpointId] ||
+              {};
+
+            updatedGauge[checkpointId] = {
+              ...existing,
+              checkpoint_id:
+                existing?.checkpoint_id ||
+                existing?.id ||
+                checkpointId,
+              value,
+            };
+          } else {
+            updatedGauge = previousGauge;
+          }
 
           return {
             ...previous,
@@ -1147,11 +1220,8 @@ useEffect(() => {
                 ...previousStations,
                 [stationKey]: {
                   ...previousStation,
-                  gauge_checkpoints: previousGauge.map((checkpoint) =>
-                    String(checkpoint?.checkpoint_id || checkpoint?.id) === String(checkpointId)
-                      ? { ...checkpoint, value }
-                      : checkpoint
-                  ),
+                  gauge_checkpoints:
+                    updatedGauge,
                 },
               },
             },

@@ -737,12 +737,20 @@ def get_pending_pdi_nok_items(
             item
             for item in pending_source
             if isinstance(item, dict)
-            and str(
-                item.get("station")
-                or item.get("stage")
-                or ""
-            ).strip().upper()
-            == active_station
+            and (
+                not str(
+                    item.get("station")
+                    or item.get("stage")
+                    or ""
+                ).strip()
+                or
+                str(
+                    item.get("station")
+                    or item.get("stage")
+                    or ""
+                ).strip().upper()
+                == active_station
+            )
         ]
 
     else:
@@ -1299,13 +1307,74 @@ def get_rework_frame(
 
     if not pending_items:
 
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "This frame has no pending "
-                "OP60 rework checkpoints"
-            ),
+        serialized = serialize_record(
+            record
         )
+
+        return {
+            "success":
+                True,
+
+            "completed":
+                True,
+
+            "message":
+                "There are no pending OP60 rework checkpoints for this frame.",
+
+            "id":
+                str(object_id),
+
+            "record_id":
+                str(object_id),
+
+            "frame_no":
+                record.get(
+                    "frame_no"
+                ),
+
+            "date":
+                record.get(
+                    "date"
+                ),
+
+            "shift":
+                record.get(
+                    "shift"
+                ),
+
+            "overall_status":
+                record.get(
+                    "overall_status"
+                ),
+
+            "nok_items":
+                [],
+
+            "op40_nok_items":
+                get_pending_nok_items(
+                    record
+                ),
+
+            "pdi_nok_items":
+                get_pending_pdi_nok_items(
+                    record
+                ),
+
+            "rework_history":
+                record.get(
+                    "rework_history",
+                    [],
+                ),
+
+            "pdi_rework_history":
+                record.get(
+                    "pdi_rework_history",
+                    [],
+                ),
+
+            "record":
+                serialized,
+        }
 
     now = datetime.now(
         timezone.utc

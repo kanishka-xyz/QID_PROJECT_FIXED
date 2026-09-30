@@ -195,14 +195,14 @@ const getStatus = (
   const reworkedKeys =
     getPdiReworkedKeys(record);
 
-  const pdiStations =
+  const pdiStationsForStatus =
     record?.pdi?.stations || {};
 
   const getEffectivePdiStatus =
     (station) => {
 
       const stationData =
-        pdiStations?.[station] || {};
+        pdiStationsForStatus?.[station] || {};
 
       if (
         normalize(stationData?.status) ===

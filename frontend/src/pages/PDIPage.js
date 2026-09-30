@@ -1004,25 +1004,52 @@ useEffect(() => {
         setError("");
         setSuccess("");
 
-        const response =
-          await axios.put(
-            `${API}/pdi/frame/${encodeURIComponent(
-              selectedRecordId
-            )}/checkpoint/${encodeURIComponent(
-              checkpointId
-            )}`,
-            {
-              value,
-            },
-            {
-              headers:
-                getHeaders(),
-            }
-          );
-
-        setRecord(
-          response.data
+        await axios.put(
+          `${API}/pdi/frame/${encodeURIComponent(
+            selectedRecordId
+          )}/checkpoint/${encodeURIComponent(
+            checkpointId
+          )}`,
+          {
+            value,
+          },
+          {
+            headers:
+              getHeaders(),
+          }
         );
+
+        // Update only the clicked checkpoint locally. This avoids
+        // replacing the whole frame response and keeps the checklist
+        // visually stable while the operator moves between points.
+        setRecord((previous) => {
+          if (!previous) return previous;
+
+          const previousPdi = previous.pdi || {};
+          const previousStations = previousPdi.stations || {};
+          const previousStation = previousStations[stationKey] || {};
+          const previousCheckpoints = Array.isArray(previousStation.checkpoints)
+            ? previousStation.checkpoints
+            : [];
+
+          return {
+            ...previous,
+            pdi: {
+              ...previousPdi,
+              stations: {
+                ...previousStations,
+                [stationKey]: {
+                  ...previousStation,
+                  checkpoints: previousCheckpoints.map((checkpoint) =>
+                    String(checkpoint?.checkpoint_id || checkpoint?.id) === String(checkpointId)
+                      ? { ...checkpoint, value }
+                      : checkpoint
+                  ),
+                },
+              },
+            },
+          };
+        });
 
         setSuccess(
           `${checkpointId} marked ${value}.`
@@ -1086,25 +1113,50 @@ useEffect(() => {
         setError("");
         setSuccess("");
 
-        const response =
-          await axios.put(
-            `${API}/pdi/frame/${encodeURIComponent(
-              selectedRecordId
-            )}/gauge/${encodeURIComponent(
-              checkpointId
-            )}`,
-            {
-              value,
-            },
-            {
-              headers:
-                getHeaders(),
-            }
-          );
-
-        setRecord(
-          response.data
+        await axios.put(
+          `${API}/pdi/frame/${encodeURIComponent(
+            selectedRecordId
+          )}/gauge/${encodeURIComponent(
+            checkpointId
+          )}`,
+          {
+            value,
+          },
+          {
+            headers:
+              getHeaders(),
+          }
         );
+
+        // Update only the clicked Gauge checkpoint locally.
+        setRecord((previous) => {
+          if (!previous) return previous;
+
+          const previousPdi = previous.pdi || {};
+          const previousStations = previousPdi.stations || {};
+          const previousStation = previousStations[stationKey] || {};
+          const previousGauge = Array.isArray(previousStation.gauge_checkpoints)
+            ? previousStation.gauge_checkpoints
+            : [];
+
+          return {
+            ...previous,
+            pdi: {
+              ...previousPdi,
+              stations: {
+                ...previousStations,
+                [stationKey]: {
+                  ...previousStation,
+                  gauge_checkpoints: previousGauge.map((checkpoint) =>
+                    String(checkpoint?.checkpoint_id || checkpoint?.id) === String(checkpointId)
+                      ? { ...checkpoint, value }
+                      : checkpoint
+                  ),
+                },
+              },
+            },
+          };
+        });
 
         setSuccess(
           `${checkpointId} marked ${value}.`

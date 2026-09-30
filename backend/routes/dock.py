@@ -118,34 +118,37 @@ OP40_LABELS = {
 # ============================================================
 
 ST4_POINTS = [
-    (
-        "CM2",
-        "CM2",
-    ),
-    (
-        "CM3",
-        "CM3",
-    ),
-    (
-        "CM4_FM",
-        "CM4 FM",
-    ),
-    (
-        "CM4_RM",
-        "CM4 RM",
-    ),
-    (
-        "M6_FACE_HOLES",
-        "M6 Face Holes",
-    ),
-    (
-        "M8_FACE_HOLES",
-        "M8 Face Holes",
-    ),
-    (
-        "CHILD_PART",
-        "Child Part",
-    ),
+    # Source: Dock Boroscopic Checksheet new.xlsx -> M6 & M8 sheet.
+    # Each boroscope inspection location is a separate mandatory point.
+    ("CM2_TOP", "CM-2 Burrs - Top"),
+    ("CM2_BOTTOM", "CM-2 Burrs - Bottom"),
+    ("CM2_M6_FACE_HOLE", "CM-2 Burrs - M6 Face Hole"),
+    ("CM2_M8_FACE_HOLE", "CM-2 Burrs - M8 Face Hole"),
+
+    ("CM3_TOP", "CM-3 Burrs - Top"),
+    ("CM3_BOTTOM", "CM-3 Burrs - Bottom"),
+    ("CM3_M6_FACE_HOLE", "CM-3 Burrs - M6 Face Hole"),
+    ("CM3_M8_FACE_HOLE", "CM-3 Burrs - M8 Face Hole"),
+
+    ("CM4_FM_RH_TOP", "CM-4 Burrs FM RH - Top"),
+    ("CM4_FM_RH_BOTTOM", "CM-4 Burrs FM RH - Bottom"),
+    ("CM4_FM_RH_M6_FACE_HOLE", "CM-4 Burrs FM RH - M6 Face Hole"),
+    ("CM4_FM_RH_M8_FACE_HOLE", "CM-4 Burrs FM RH - M8 Face Hole"),
+
+    ("CM4_FM_LH_TOP", "CM-4 Burrs FM LH - Top"),
+    ("CM4_FM_LH_BOTTOM", "CM-4 Burrs FM LH - Bottom"),
+    ("CM4_FM_LH_M6_FACE_HOLE", "CM-4 Burrs FM LH - M6 Face Hole"),
+    ("CM4_FM_LH_M8_FACE_HOLE", "CM-4 Burrs FM LH - M8 Face Hole"),
+
+    ("CM4_RM_RH_TOP", "CM-4 Burrs RM RH - Top"),
+    ("CM4_RM_RH_BOTTOM", "CM-4 Burrs RM RH - Bottom"),
+    ("CM4_RM_RH_M6_FACE_HOLE", "CM-4 Burrs RM RH - M6 Face Hole"),
+    ("CM4_RM_RH_M8_FACE_HOLE", "CM-4 Burrs RM RH - M8 Face Hole"),
+
+    ("CM4_RM_LH_TOP", "CM-4 Burrs RM LH - Top"),
+    ("CM4_RM_LH_BOTTOM", "CM-4 Burrs RM LH - Bottom"),
+    ("CM4_RM_LH_M6_FACE_HOLE", "CM-4 Burrs RM LH - M6 Face Hole"),
+    ("CM4_RM_LH_M8_FACE_HOLE", "CM-4 Burrs RM LH - M8 Face Hole"),
 ]
 
 

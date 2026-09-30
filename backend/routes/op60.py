@@ -934,6 +934,7 @@ def get_pending_pdi_nok_items(
             or item.get(
                 "stage"
             )
+            or active_station
             or ""
         ).strip().upper()
 

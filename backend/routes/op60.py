@@ -708,26 +708,46 @@ def get_pending_pdi_nok_items(
         [],
     )
 
+    active_station = str(
+        pdi.get(
+            "current_station",
+            "",
+        )
+        or record.get(
+            "op60_return_station",
+            "",
+        )
+        or ""
+    ).strip().upper()
+
+    if active_station not in PDI_REWORK_STATIONS:
+
+        active_station = ""
+
     if isinstance(
         pending_source,
         list,
     ) and pending_source:
 
-        source_items = pending_source
+        # Keep only NOK items belonging to the PDI station that
+        # actually sent this frame to OP60. This removes stale
+        # PDI-3 items when the frame is now being reworked from
+        # PDI-4.
+        source_items = [
+            item
+            for item in pending_source
+            if isinstance(item, dict)
+            and str(
+                item.get("station")
+                or item.get("stage")
+                or ""
+            ).strip().upper()
+            == active_station
+        ]
 
     else:
 
-        current_station = str(
-            pdi.get(
-                "current_station",
-                "",
-            )
-            or record.get(
-                "op60_return_station",
-                "",
-            )
-            or ""
-        ).strip().upper()
+        current_station = active_station
 
         if current_station not in PDI_REWORK_STATIONS:
 

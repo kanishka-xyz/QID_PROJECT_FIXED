@@ -1728,22 +1728,17 @@ def save_rework(
             )
         )
 
-        if original_status not in {
-            "NO",
-            "NOK",
-        }:
-
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    "This PDI checkpoint "
-                    "is not an original NOK"
-                ),
-            )
-
-
         # ====================================================
-        # DUPLICATE CHECK
+        # DUPLICATE / STALE SCREEN CHECK
+        # ====================================================
+        #
+        # The PDI checkpoint value is intentionally kept as the
+        # original inspection value. Therefore an already-reworked
+        # checkpoint may no longer be represented as an active NOK
+        # even though the browser still has the old OP60 row open.
+        #
+        # Check the rework history BEFORE rejecting a non-NOK value.
+        # This makes repeated clicks/browser refreshes idempotent.
         # ====================================================
 
         reworked_keys = get_pdi_reworked_keys(
@@ -1757,11 +1752,6 @@ def save_rework(
 
         if current_key in reworked_keys:
 
-            # The OP60 screen can contain a stale PDI NOK row if the
-            # same correction was already saved (for example after a
-            # browser refresh or a repeated click). Do not create a
-            # duplicate rework entry. Return the current database state
-            # so the frontend can refresh its pending list.
             remaining_pdi_items = get_pending_pdi_nok_items(record)
             remaining_items = get_all_pending_items(record)
 
@@ -1774,6 +1764,39 @@ def save_rework(
                 "station": station,
                 "checkpoint_id": checkpoint_id,
                 "original_status": "NO",
+                "corrected_status": "YES",
+                "already_corrected": True,
+                "remaining_pdi_nok": remaining_pdi_items,
+                "remaining_pdi_nok_count": len(remaining_pdi_items),
+                "remaining_nok": remaining_items,
+                "remaining_nok_count": len(remaining_items),
+                "overall_status": record.get("overall_status"),
+                "current_stage": record.get("current_stage"),
+                "current_station": record.get("current_station"),
+                "record": serialize_record(record),
+            }
+
+        # A stale browser row can also survive after the checkpoint has
+        # already been corrected while the rework history was not written
+        # in the same browser session. If the stored checkpoint is no longer
+        # NOK, return the current state instead of creating another rework.
+        if original_status not in {
+            "NO",
+            "NOK",
+        }:
+
+            remaining_pdi_items = get_pending_pdi_nok_items(record)
+            remaining_items = get_all_pending_items(record)
+
+            return {
+                "success": True,
+                "message": "PDI checkpoint is already corrected; current state refreshed.",
+                "record_id": str(object_id),
+                "frame_no": record.get("frame_no"),
+                "source": "PDI",
+                "station": station,
+                "checkpoint_id": checkpoint_id,
+                "original_status": original_status,
                 "corrected_status": "YES",
                 "already_corrected": True,
                 "remaining_pdi_nok": remaining_pdi_items,

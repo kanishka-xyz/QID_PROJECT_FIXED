@@ -691,11 +691,51 @@ def get_pending_pdi_nok_items(
         record
     )
 
-    for station in PDI_REWORK_STATIONS:
+    # ========================================================
+    # ONLY SHOW NOK ITEMS FROM THE PDI STATION THAT ACTUALLY
+    # SENT THIS FRAME TO OP60.
+    #
+    # PDI-3 NOK -> OP60 must show only PDI-3 NOK items.
+    # PDI-4 NOK -> OP60 must show only PDI-4 NOK items.
+    #
+    # The old implementation scanned BOTH stations, which could
+    # put old PDI-3 NOKs and current PDI-4 NOKs on the same OP60
+    # screen and could prevent the correct station from completing.
+    # ========================================================
+
+    pending_source = record.get(
+        "pdi_nok_items",
+        [],
+    )
+
+    if isinstance(
+        pending_source,
+        list,
+    ) and pending_source:
+
+        source_items = pending_source
+
+    else:
+
+        current_station = str(
+            pdi.get(
+                "current_station",
+                "",
+            )
+            or record.get(
+                "op60_return_station",
+                "",
+            )
+            or ""
+        ).strip().upper()
+
+        if current_station not in PDI_REWORK_STATIONS:
+
+            return result
 
         station_data = (
             stations.get(
-                station,
+                current_station,
                 {},
             ) or {}
         )
@@ -705,7 +745,9 @@ def get_pending_pdi_nok_items(
             dict,
         ):
 
-            continue
+            return result
+
+        source_items = []
 
         checkpoints = (
             station_data.get(
@@ -714,101 +756,68 @@ def get_pending_pdi_nok_items(
             ) or {}
         )
 
-        if not isinstance(
+        if isinstance(
             checkpoints,
             dict,
         ):
 
-            continue
+            for checkpoint_id, checkpoint in checkpoints.items():
 
-        for checkpoint_id, checkpoint in checkpoints.items():
+                if not isinstance(
+                    checkpoint,
+                    dict,
+                ):
 
-            if not isinstance(
-                checkpoint,
-                dict,
-            ):
+                    continue
 
-                continue
-
-            value = normalize_status(
-                checkpoint.get(
-                    "value"
+                value = normalize_status(
+                    checkpoint.get(
+                        "value"
+                    )
                 )
-            )
 
-            if value not in {
-                "NO",
-                "NOK",
-            }:
+                if value in {
+                    "NO",
+                    "NOK",
+                }:
 
-                continue
-
-            checkpoint_id = str(
-                checkpoint_id
-            )
-
-            key = (
-                f"{station}.{checkpoint_id}"
-            )
-
-            # Already corrected by OP60.
-            if key in reworked_keys:
-                continue
-
-            result.append(
-                {
-                    "source":
-                        "PDI",
-
-                    "station":
-                        station,
-
-                    "stage":
-                        station,
-
-                    "checkpoint_id":
-                        checkpoint_id,
-
-                    "field":
-                        checkpoint_id,
-
-                    "sr_no":
-                        checkpoint.get(
-                            "sr_no"
-                        ),
-
-                    "checkpoint":
-                        (
-                            checkpoint.get(
-                                "checkpoint"
-                            )
-                            or
-                            checkpoint.get(
-                                "name"
-                            )
-                            or
-                            checkpoint_id
-                        ),
-
-                    "criteria":
-                        checkpoint.get(
-                            "criteria",
-                            "",
-                        ),
-
-                    "method":
-                        checkpoint.get(
-                            "method",
-                            "",
-                        ),
-
-                    "original_status":
-                        "NO",
-
-                    "status":
-                        "NOK",
-                }
-            )
+                    source_items.append(
+                        {
+                            "source": "PDI",
+                            "station": current_station,
+                            "stage": current_station,
+                            "checkpoint_id": str(
+                                checkpoint_id
+                            ),
+                            "field": str(
+                                checkpoint_id
+                            ),
+                            "sr_no": checkpoint.get(
+                                "sr_no"
+                            ),
+                            "checkpoint": (
+                                checkpoint.get(
+                                    "checkpoint"
+                                )
+                                or checkpoint.get(
+                                    "name"
+                                )
+                                or str(
+                                    checkpoint_id
+                                )
+                            ),
+                            "criteria": checkpoint.get(
+                                "criteria",
+                                "",
+                            ),
+                            "method": checkpoint.get(
+                                "method",
+                                "",
+                            ),
+                            "original_status": "NO",
+                            "status": "NOK",
+                        }
+                    )
 
         gauge_checkpoints = (
             station_data.get(
@@ -817,38 +826,178 @@ def get_pending_pdi_nok_items(
             ) or {}
         )
 
-        if isinstance(gauge_checkpoints, dict):
+        if (
+            current_station == "PDI_STATION_3"
+            and isinstance(
+                gauge_checkpoints,
+                dict,
+            )
+        ):
+
             for checkpoint_id, checkpoint in gauge_checkpoints.items():
-                if not isinstance(checkpoint, dict):
+
+                if not isinstance(
+                    checkpoint,
+                    dict,
+                ):
+
                     continue
 
-                value = normalize_status(checkpoint.get("value"))
-                if value not in {"NO", "NOK"}:
-                    continue
+                value = normalize_status(
+                    checkpoint.get(
+                        "value"
+                    )
+                )
 
-                checkpoint_id = str(checkpoint_id)
-                key = f"{station}.{checkpoint_id}"
+                if value in {
+                    "NO",
+                    "NOK",
+                }:
 
-                if key in reworked_keys:
-                    continue
+                    source_items.append(
+                        {
+                            "source": "PDI",
+                            "station": current_station,
+                            "stage": current_station,
+                            "checkpoint_id": str(
+                                checkpoint_id
+                            ),
+                            "field": str(
+                                checkpoint_id
+                            ),
+                            "sr_no": checkpoint.get(
+                                "sr_no"
+                            ),
+                            "checkpoint": (
+                                checkpoint.get(
+                                    "checkpoint"
+                                )
+                                or str(
+                                    checkpoint_id
+                                )
+                            ),
+                            "criteria": checkpoint.get(
+                                "criteria",
+                                "",
+                            ),
+                            "method": checkpoint.get(
+                                "method",
+                                "",
+                            ),
+                            "original_status": "NO",
+                            "status": "NOK",
+                            "type": "GAUGE",
+                        }
+                    )
 
-                result.append({
-                    "source": "PDI",
-                    "station": station,
-                    "stage": station,
-                    "checkpoint_id": checkpoint_id,
-                    "field": checkpoint_id,
-                    "sr_no": checkpoint.get("sr_no"),
-                    "checkpoint": (
-                        checkpoint.get("checkpoint")
+    for item in source_items:
+
+        if not isinstance(
+            item,
+            dict,
+        ):
+
+            continue
+
+        station = str(
+            item.get(
+                "station"
+            )
+            or item.get(
+                "stage"
+            )
+            or ""
+        ).strip().upper()
+
+        if station not in PDI_REWORK_STATIONS:
+
+            continue
+
+        checkpoint_id = str(
+            item.get(
+                "checkpoint_id"
+            )
+            or item.get(
+                "field"
+            )
+            or ""
+        ).strip()
+
+        if not checkpoint_id:
+
+            continue
+
+        key = (
+            f"{station}.{checkpoint_id}"
+        )
+
+        if key in reworked_keys:
+
+            continue
+
+        result.append(
+            {
+                "source":
+                    "PDI",
+
+                "station":
+                    station,
+
+                "stage":
+                    station,
+
+                "checkpoint_id":
+                    checkpoint_id,
+
+                "field":
+                    checkpoint_id,
+
+                "sr_no":
+                    item.get(
+                        "sr_no"
+                    ),
+
+                "checkpoint":
+                    (
+                        item.get(
+                            "checkpoint"
+                        )
+                        or item.get(
+                            "name"
+                        )
                         or checkpoint_id
                     ),
-                    "criteria": checkpoint.get("criteria", ""),
-                    "method": checkpoint.get("method", ""),
-                    "original_status": "NO",
-                    "status": "NOK",
-                    "type": "GAUGE",
-                })
+
+                "criteria":
+                    item.get(
+                        "criteria",
+                        "",
+                    ),
+
+                "method":
+                    item.get(
+                        "method",
+                        "",
+                    ),
+
+                "original_status":
+                    "NO",
+
+                "status":
+                    "NOK",
+
+                **(
+                    {
+                        "type":
+                            "GAUGE"
+                    }
+                    if item.get(
+                        "type"
+                    ) == "GAUGE"
+                    else {}
+                ),
+            }
+        )
 
     return result
 
@@ -1837,10 +1986,10 @@ def save_rework(
 
 
         # ====================================================
-        # STILL HAS OP60 WORK
+        # STILL HAS PDI OP60 WORK
         # ====================================================
 
-        if remaining_items:
+        if remaining_pdi_items:
 
             update_fields[
                 "overall_status"
@@ -2006,7 +2155,7 @@ def save_rework(
 
         push_fields = {}
 
-        if not remaining_items:
+        if not remaining_pdi_items:
 
             push_fields[
                 "frame_history"

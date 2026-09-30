@@ -608,32 +608,24 @@ def get_firewall_queue(
     )
 
     # =====================================================
-    # PDI STATION 3 MUST BE PASSED
+    # BOTH PDI STATIONS MUST BE PASSED
     # =====================================================
-
-    # A frame is eligible for Firewall in either of these cases:
-    # 1. It has already been moved to FIREWALL by the PDI workflow.
-    # 2. BOTH PDI-3 and PDI-4 are PASSED. This covers both normal
-    #    PDI-OK frames and PDI-3 NOK frames that went through OP60
-    #    rework and then completed PDI-4.
     #
-    # Do NOT use PDI-3 alone as eligibility: a PDI-3-passed frame must
-    # still complete PDI-4 before entering Firewall.
+    # A frame is eligible for Firewall ONLY when both PDI
+    # stations are actually marked PASSED in the database.
+    #
+    # Do not use current_station alone as eligibility. Older
+    # records can have current_station=FIREWALL even though
+    # PDI-4 was not completed, which would incorrectly expose
+    # the frame in the Firewall queue and then cause a 403
+    # when the operator tries to pass it.
     records = list(
         inspection_collection.find(
             {
-                "$or": [
-                    {
-                        "current_station":
-                            "FIREWALL",
-                    },
-                    {
-                        "pdi.stations.PDI_STATION_3.status":
-                            "PASSED",
-                        "pdi.stations.PDI_STATION_4.status":
-                            "PASSED",
-                    },
-                ]
+                "pdi.stations.PDI_STATION_3.status":
+                    "PASSED",
+                "pdi.stations.PDI_STATION_4.status":
+                    "PASSED",
             }
         ).sort(
             "created_at",

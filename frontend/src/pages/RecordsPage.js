@@ -185,6 +185,108 @@ const getStatus = (
 
 
   /* -------------------------------------------------------
+     EFFECTIVE PDI STATUS AFTER OP60 REWORK
+     -------------------------------------------------------
+     Original PDI NO values remain unchanged for traceability.
+     Records therefore also uses pdi_reworked_items to determine
+     the effective station result after OP60 correction.
+  */
+
+  const reworkedKeys =
+    getPdiReworkedKeys(record);
+
+  const pdiStations =
+    record?.pdi?.stations || {};
+
+  const getEffectivePdiStatus =
+    (station) => {
+
+      const stationData =
+        pdiStations?.[station] || {};
+
+      if (
+        normalize(stationData?.status) ===
+        "PASSED"
+      ) {
+        return "PASSED";
+      }
+
+      const checkpoints =
+        stationData?.checkpoints || {};
+
+      const gaugeCheckpoints =
+        station === "PDI_STATION_3"
+          ? stationData?.gauge_checkpoints || {}
+          : {};
+
+      const nokKeys = [
+        ...Object.entries(checkpoints),
+        ...Object.entries(gaugeCheckpoints),
+      ]
+        .filter(
+          ([, checkpoint]) =>
+            normalize(checkpoint?.value) === "NO"
+        )
+        .map(
+          ([checkpointId]) =>
+            `${station}.${String(checkpointId).trim()}`
+        );
+
+      if (
+        nokKeys.length > 0 &&
+        nokKeys.every((key) => reworkedKeys.has(key))
+      ) {
+        const remainingForStation =
+          Array.isArray(record?.pdi_nok_items)
+            ? record.pdi_nok_items.some(
+                (item) =>
+                  normalize(item?.station || item?.stage) === station
+              )
+            : false;
+
+        if (!remainingForStation) {
+          return "PASSED";
+        }
+      }
+
+      return normalize(stationData?.status);
+    };
+
+  const effectivePdi3 =
+    getEffectivePdiStatus("PDI_STATION_3");
+
+  const effectivePdi4 =
+    getEffectivePdiStatus("PDI_STATION_4");
+
+  /* -------------------------------------------------------
+     NEXT WORKFLOW LOCATION
+     -------------------------------------------------------
+     Do this before the raw OP60 check so a completed rework
+     is immediately reflected in Records.
+  */
+
+  if (
+    effectivePdi3 === "PASSED" &&
+    effectivePdi4 !== "PASSED"
+  ) {
+    return "PDI STATION 4";
+  }
+
+  if (
+    effectivePdi3 === "PASSED" &&
+    effectivePdi4 === "PASSED"
+  ) {
+    const firewallStatus =
+      normalize(
+        record?.firewall?.stations?.FIREWALL?.status
+      );
+
+    if (firewallStatus !== "PASSED") {
+      return "FIREWALL";
+    }
+  }
+
+  /* -------------------------------------------------------
      OP60
      ------------------------------------------------------- */
 
@@ -194,7 +296,6 @@ const getStatus = (
   ) {
     return "OP60 REWORK";
   }
-
 
   /* -------------------------------------------------------
      PDI STATION 3

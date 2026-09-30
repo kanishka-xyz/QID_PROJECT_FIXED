@@ -3178,6 +3178,11 @@ def pass_pdi_station(
     # =====================================================
     # THIS STATION HAS NOK
     # =====================================================
+    #
+    # PDI-3 NOK -> OP60 rework.
+    # PDI-4 NOK -> stay at PDI-4 until the operator corrects
+    # all NOK points and submits the station again.
+    # =====================================================
 
     if nok_items:
 
@@ -3189,7 +3194,7 @@ def pass_pdi_station(
                 "PDI",
 
             "action":
-                "STATION_COMPLETED",
+                "STATION_CHECKED",
 
             "status":
                 "NOK",
@@ -3213,51 +3218,110 @@ def pass_pdi_station(
                 now,
         }
 
-        inspection_collection.update_one(
-            {
-                "_id":
-                    object_id
-            },
-            {
-                "$set": {
+        if station == "PDI_STATION_3":
 
-                    f"pdi.stations.{station}.status":
-                        "NOK",
-
-                    f"pdi.stations.{station}.result_status":
-                        "NOK",
-
-                    f"pdi.stations.{station}.completed_at":
-                        now,
-
-                    f"pdi.stations.{station}.nok_items":
-                        nok_items,
-
-                    "pdi.status":
-                        "IN_PROGRESS",
-
-                    "overall_status":
-                        "OP60_REWORK",
-
-                    "current_stage":
-                        "OP60",
-
-                    "current_station":
-                        "OP60",
-
-                    "pdi_nok_items":
-                        nok_items,
-
-                    "updated_at":
-                        now,
+            # PDI-3 NOK is the only PDI condition that goes to OP60.
+            inspection_collection.update_one(
+                {
+                    "_id":
+                        object_id
                 },
+                {
+                    "$set": {
 
-                "$push": {
-                    "frame_history":
-                        frame_history_entry,
+                        f"pdi.stations.{station}.status":
+                            "NOK",
+
+                        f"pdi.stations.{station}.result_status":
+                            "NOK",
+
+                        f"pdi.stations.{station}.completed_at":
+                            now,
+
+                        f"pdi.stations.{station}.nok_items":
+                            nok_items,
+
+                        "pdi.status":
+                            "IN_PROGRESS",
+
+                        "overall_status":
+                            "OP60_REWORK",
+
+                        "current_stage":
+                            "OP60",
+
+                        "current_station":
+                            "OP60",
+
+                        "pdi_nok_items":
+                            nok_items,
+
+                        "op60_return_station":
+                            "PDI_STATION_3",
+
+                        "updated_at":
+                            now,
+                    },
+
+                    "$push": {
+                        "frame_history":
+                            frame_history_entry,
+                    },
+                }
+            )
+
+        else:
+
+            # PDI-4 NOK must NOT go to OP60.
+            # Keep the frame at PDI-4 until every point is corrected.
+            inspection_collection.update_one(
+                {
+                    "_id":
+                        object_id
                 },
-            }
-        )
+                {
+                    "$set": {
+
+                        f"pdi.stations.{station}.status":
+                            "IN_PROGRESS",
+
+                        f"pdi.stations.{station}.result_status":
+                            "NOK",
+
+                        f"pdi.stations.{station}.completed_at":
+                            None,
+
+                        f"pdi.stations.{station}.nok_items":
+                            nok_items,
+
+                        "pdi.status":
+                            "IN_PROGRESS",
+
+                        "overall_status":
+                            "PDI_IN_PROGRESS",
+
+                        "current_stage":
+                            "PDI_STATION_4",
+
+                        "current_station":
+                            "PDI_STATION_4",
+
+                        "pdi.current_station":
+                            "PDI_STATION_4",
+
+                        "pdi_nok_items":
+                            nok_items,
+
+                        "updated_at":
+                            now,
+                    },
+
+                    "$push": {
+                        "frame_history":
+                            frame_history_entry,
+                    },
+                }
+            )
 
         updated = (
             inspection_collection

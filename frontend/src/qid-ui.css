@@ -411,3 +411,106 @@ table tbody tr:hover td{background:#f8fafc!important}
     grid-template-columns: 1fr;
   }
 }
+
+
+/* OP60: focused correction dialog instead of a large inline expansion */
+.qid-op60 .expandedRework {
+  position: fixed !important;
+  z-index: 1000;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(500px, calc(100vw - 36px));
+  max-height: min(560px, calc(100vh - 40px));
+  overflow-y: auto;
+  margin: 0 !important;
+  padding: 22px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 24px 70px rgba(15,31,61,.28),
+    0 0 0 100vmax rgba(15,23,42,.42) !important;
+}
+
+.qid-op60 .expandedRework::before {
+  content: "CORRECT NOK CHECKPOINT";
+  display: block;
+  margin: -22px -22px 18px;
+  padding: 13px 22px;
+  background: #102a56;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  border-radius: 16px 16px 0 0;
+}
+
+.qid-op60 .expandedRework .reworkHeader {
+  align-items: center !important;
+  margin-bottom: 18px !important;
+}
+
+.qid-op60 .expandedRework .reworkCheckpoint {
+  font-size: 22px !important;
+  color: #10213f !important;
+}
+
+.qid-op60 .expandedRework .reworkSubTitle {
+  font-size: 12px !important;
+}
+
+.qid-op60 .expandedRework .originalBadge {
+  padding: 7px 10px !important;
+  font-size: 10px !important;
+}
+
+.qid-op60 .expandedRework .reworkControls {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 16px !important;
+}
+
+.qid-op60 .expandedRework .controlLabel {
+  margin-bottom: 7px !important;
+  font-size: 12px !important;
+}
+
+.qid-op60 .expandedRework .resultButtons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px !important;
+}
+
+.qid-op60 .expandedRework .resultButton {
+  min-height: 46px !important;
+  font-size: 14px !important;
+}
+
+.qid-op60 .expandedRework .remarkInput {
+  min-height: 82px !important;
+  resize: vertical;
+}
+
+.qid-op60 .expandedRework .reworkFooter {
+  margin-top: 18px !important;
+  padding-top: 14px !important;
+  gap: 8px !important;
+}
+
+.qid-op60 .expandedRework .reworkFooter button {
+  min-height: 44px;
+}
+
+@media (max-width: 700px) {
+  .qid-op60 .expandedRework {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 18px !important;
+  }
+
+  .qid-op60 .expandedRework::before {
+    margin: -18px -18px 16px;
+    padding: 12px 18px;
+  }
+}

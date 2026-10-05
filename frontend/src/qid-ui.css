@@ -514,3 +514,120 @@ table tbody tr:hover td{background:#f8fafc!important}
     padding: 12px 18px;
   }
 }
+
+
+/* =========================================================
+   DOCK STATIONS — NO-SCROLL CHECKPOINT WORKSPACE
+   Keep the complete checklist visible on normal desktop
+   production-floor displays.
+   ========================================================= */
+
+.qid-dock .dock-content {
+  min-width: 0;
+}
+
+.qid-dock .simple-list {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px !important;
+  align-items: start;
+}
+
+.qid-dock .simple-point {
+  min-width: 0;
+  padding: 11px 10px !important;
+  border: 1px solid #d8e0eb !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(15,31,61,.045);
+  text-align: left !important;
+}
+
+.qid-dock .simple-point h3 {
+  min-height: 32px;
+  margin: 0 0 7px !important;
+  display: flex;
+  align-items: center;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  color: #20385f;
+}
+
+.qid-dock .simple-point .criteria {
+  height: 27px;
+  overflow: hidden;
+  margin: 0 0 7px !important;
+  font-size: 10px !important;
+  line-height: 1.25 !important;
+  color: #64748b;
+}
+
+.qid-dock .simple-point .dock-buttons {
+  justify-content: stretch !important;
+  gap: 6px !important;
+}
+
+.qid-dock .simple-point .dock-buttons button {
+  flex: 1;
+  min-width: 0 !important;
+  padding: 7px 8px !important;
+  min-height: 34px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+}
+
+.qid-dock .simple-point textarea {
+  width: 100%;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  margin-top: 7px !important;
+  padding: 7px 8px !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  resize: none !important;
+  overflow: hidden;
+}
+
+.qid-dock .complete {
+  margin-top: 12px !important;
+  padding-top: 10px !important;
+}
+
+.qid-dock .complete button {
+  min-height: 40px;
+}
+
+@media (max-width: 1200px) {
+  .qid-dock .simple-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .qid-dock .simple-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .qid-dock .simple-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact the surrounding Dock workspace as well. */
+@media (min-width: 851px) {
+  .qid-dock .dock-page {
+    min-height: 100vh;
+    padding-bottom: 10px !important;
+  }
+
+  .qid-dock .card {
+    padding: 14px !important;
+  }
+
+  .qid-dock .card-header {
+    margin-bottom: 10px !important;
+  }
+}

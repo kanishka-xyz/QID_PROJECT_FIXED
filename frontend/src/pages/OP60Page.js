@@ -2624,10 +2624,7 @@ const stationKey = String(
                         </div>
 
 
-                        <div
-                          style={
-                            styles.fieldList
-                          }
+                        <div className="op60-field-list" style={styles.fieldList}
                         >
 
                           {
@@ -2651,6 +2648,7 @@ const stationKey = String(
                                     key={
                                       `${item.station}-${item.checkpoint_id}`
                                     }
+                                    className="op60-nok-wrapper"
                                     style={{
                                       ...styles.nokWrapper,
 
@@ -2674,7 +2672,8 @@ const stationKey = String(
                                           item
                                         )
                                       }
-                                      style={{
+                                      className="op60-nok-row"
+                                    style={{
                                         ...styles.nokRow,
 
                                         ...(selected
@@ -2690,9 +2689,7 @@ const stationKey = String(
                                       >
 
                                         <span
-                                          style={
-                                            styles.fieldName
-                                          }
+                                          className="op60-field-name" style={styles.fieldName}
                                         >
 
                                           {
@@ -3148,10 +3145,7 @@ const stationKey = String(
                         </div>
 
 
-                        <div
-                          style={
-                            styles.fieldList
-                          }
+                        <div className="op60-field-list" style={styles.fieldList}
                         >
 
                           {
@@ -3177,6 +3171,7 @@ const stationKey = String(
                                     key={
                                       `${item.stage}-${item.sheet}-${item.field}`
                                     }
+                                    className="op60-nok-wrapper"
                                     style={{
                                       ...styles.nokWrapper,
 
@@ -3196,7 +3191,8 @@ const stationKey = String(
                                           item
                                         )
                                       }
-                                      style={{
+                                      className="op60-nok-row"
+                                    style={{
                                         ...styles.nokRow,
 
                                         ...(selected
@@ -3212,9 +3208,7 @@ const stationKey = String(
                                       >
 
                                         <span
-                                          style={
-                                            styles.fieldName
-                                          }
+                                          className="op60-field-name" style={styles.fieldName}
                                         >
 
                                           {
@@ -3602,7 +3596,7 @@ const styles = {
     color:
       "#ffffff",
     padding:
-      "20px 38px",
+      "12px 28px",
     display:
       "flex",
     justifyContent:
@@ -3617,7 +3611,7 @@ const styles = {
     margin:
       0,
     fontSize:
-      "27px",
+      "22px",
     fontWeight:
       "800",
     letterSpacing:
@@ -3626,7 +3620,7 @@ const styles = {
 
   headerSubtitle: {
     margin:
-      "7px 0 0",
+      "4px 0 0",
     color:
       "#dbeafe",
     fontSize:
@@ -3648,7 +3642,7 @@ const styles = {
     color:
       "#ffffff",
     padding:
-      "11px 17px",
+      "9px 14px",
     borderRadius:
       "8px",
     fontWeight:
@@ -3676,11 +3670,11 @@ const styles = {
 
   container: {
     maxWidth:
-      "1180px",
+      "1280px",
     margin:
       "0 auto",
     padding:
-      "30px 22px 55px",
+      "16px 18px 24px",
   },
 
   card: {
@@ -3689,9 +3683,9 @@ const styles = {
     borderRadius:
       "15px",
     padding:
-      "25px",
+      "15px 16px",
     marginBottom:
-      "20px",
+      "12px",
     boxShadow:
       "0 4px 18px rgba(15,23,42,0.08)",
   },
@@ -3713,18 +3707,18 @@ const styles = {
     margin:
       0,
     fontSize:
-      "26px",
+      "20px",
     fontWeight:
       "800",
   },
 
   meta: {
     margin:
-      "8px 0 0",
+      "5px 0 0",
     color:
       "#64748b",
     fontSize:
-      "16px",
+      "13px",
   },
 
   status: {
@@ -3756,9 +3750,9 @@ const styles = {
 
   infoBar: {
     marginTop:
-      "18px",
+      "9px",
     padding:
-      "14px 16px",
+      "9px 12px",
     border:
       "1px solid #e2e8f0",
     background:
@@ -3881,7 +3875,7 @@ const styles = {
     color:
       "#ffffff",
     padding:
-      "22px 27px",
+      "13px 18px",
     display:
       "flex",
     justifyContent:
@@ -3907,7 +3901,7 @@ const styles = {
     margin:
       "5px 0 0",
     fontSize:
-      "28px",
+      "21px",
   },
 
   stageStatus: {
@@ -3916,7 +3910,7 @@ const styles = {
     color:
       "#991b1b",
     padding:
-      "10px 15px",
+      "8px 12px",
     borderRadius:
       "25px",
     fontWeight:
@@ -3927,12 +3921,12 @@ const styles = {
 
   fieldList: {
     padding:
-      "15px",
+      "12px",
   },
 
   nokWrapper: {
     marginBottom:
-      "10px",
+      "0",
     border:
       "1px solid #fecaca",
     borderRadius:
@@ -3958,9 +3952,9 @@ const styles = {
     background:
       "transparent",
     minHeight:
-      "70px",
+      "58px",
     padding:
-      "16px 18px",
+      "10px 14px",
     display:
       "flex",
     alignItems:
@@ -3993,11 +3987,11 @@ const styles = {
     color:
       "#172554",
     fontSize:
-      "17px",
+      "15px",
     fontWeight:
       "800",
     lineHeight:
-      "1.4",
+      "1.25",
   },
 
   criteria: {
@@ -4030,7 +4024,7 @@ const styles = {
     alignItems:
       "center",
     gap:
-      "13px",
+      "9px",
     flexShrink:
       0,
   },

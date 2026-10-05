@@ -291,3 +291,123 @@ table tbody tr:hover td{background:#f8fafc!important}
     grid-column: 1 / -1;
   }
 }
+
+
+/* OP60 refined workstation layout */
+.qid-op60 .stageCard {
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
+}
+
+.qid-op60 .stageHeader {
+  border-radius: 12px;
+  padding: 14px 20px !important;
+  box-shadow: 0 5px 16px rgba(15,31,61,.12);
+}
+
+.qid-op60 .op60-field-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px 0 0;
+}
+
+.qid-op60 .op60-nok-wrapper {
+  background: #ffffff !important;
+  border: 1px solid #dbe3ee !important;
+  border-radius: 10px !important;
+  box-shadow: 0 3px 10px rgba(15,31,61,.055);
+  align-self: start;
+}
+
+.qid-op60 .op60-nok-wrapper:hover {
+  border-color: #b8c7da !important;
+  box-shadow: 0 5px 14px rgba(15,31,61,.08);
+}
+
+.qid-op60 .op60-nok-wrapper:has(.selectedNokRow) {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37,99,235,.10), 0 5px 14px rgba(15,31,61,.08);
+}
+
+.qid-op60 .op60-nok-row {
+  min-height: 64px !important;
+  padding: 11px 13px !important;
+}
+
+.qid-op60 .op60-field-name {
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  color: #233a63 !important;
+}
+
+.qid-op60 .nokRight {
+  gap: 7px !important;
+}
+
+.qid-op60 .noBadge {
+  padding: 5px 8px !important;
+  font-size: 10px !important;
+  border-radius: 6px !important;
+}
+
+.qid-op60 .correctHint {
+  font-size: 10px !important;
+  white-space: nowrap;
+}
+
+.qid-op60 .expandedRework {
+  padding: 13px !important;
+  border-top: 1px solid #dbe3ee !important;
+  background: #f8fbff !important;
+}
+
+.qid-op60 .reworkHeader {
+  margin-bottom: 12px !important;
+  gap: 8px !important;
+}
+
+.qid-op60 .reworkCheckpoint {
+  font-size: 17px !important;
+}
+
+.qid-op60 .reworkControls {
+  display: block !important;
+}
+
+.qid-op60 .controlGroup {
+  min-width: 0 !important;
+}
+
+.qid-op60 .resultButtons {
+  width: 100%;
+}
+
+.qid-op60 .resultButton {
+  flex: 1;
+  min-width: 0 !important;
+  padding: 9px 10px !important;
+}
+
+.qid-op60 .reworkFooter {
+  margin-top: 12px !important;
+  padding-top: 10px !important;
+}
+
+.qid-op60 .reworkFooter button {
+  flex: 1;
+}
+
+@media (max-width: 1100px) {
+  .qid-op60 .op60-field-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .qid-op60 .op60-field-list {
+    grid-template-columns: 1fr;
+  }
+}
